@@ -308,6 +308,10 @@ const Sudoku = () => {
                       Math.floor(selectedCell[1] / 3) === Math.floor(colIndex / 3) 
                       : false;
                     
+                    // Fix for TypeScript error - use numeric literals instead of comparing to 8
+                    const hasBottomBorder = (rowIndex === 2 || rowIndex === 5) && rowIndex < 8;
+                    const hasRightBorder = (colIndex === 2 || colIndex === 5) && colIndex < 8;
+                    
                     return (
                       <button
                         key={`${rowIndex}-${colIndex}`}
@@ -317,8 +321,8 @@ const Sudoku = () => {
                           ${isSelected ? "bg-blue-100" : ""}
                           ${isSameBox ? "bg-blue-50" : ""}
                           ${isInitial ? "font-bold" : ""}
-                          ${(rowIndex === 2 || rowIndex === 5) && rowIndex !== 8 ? "border-b-2 border-gray-400" : ""}
-                          ${(colIndex === 2 || colIndex === 5) && colIndex !== 8 ? "border-r-2 border-gray-400" : ""}
+                          ${hasBottomBorder ? "border-b-2 border-gray-400" : ""}
+                          ${hasRightBorder ? "border-r-2 border-gray-400" : ""}
                           hover:bg-secondary/50 transition-colors
                         `}
                         onClick={() => handleCellSelect(rowIndex, colIndex)}
