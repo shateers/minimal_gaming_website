@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
 
-// Tetris piece shapes represented as coordinates
+// Tetromino piece shapes represented as coordinates
 const TETROMINOS = {
   I: [
     [0, 0], [0, 1], [0, 2], [0, 3]
@@ -66,28 +66,22 @@ const Tetris = () => {
   const [speed, setSpeed] = useState<keyof typeof GAME_SPEEDS>("medium");
   const [timer, setTimer] = useState<number>(0);
   
-  // Use refs instead of state for timers to prevent infinite loops
   const timerIdRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
   const gameLoopIdRef = useRef<number | null>(null);
   const isInitializedRef = useRef<boolean>(false);
 
-  // Initialize an empty board
   const createEmptyBoard = useCallback((): TetrisBoard => {
     return Array(BOARD_HEIGHT).fill(null).map(() => Array(BOARD_WIDTH).fill(null));
   }, []);
 
-  // Get a random tetromino type
   const getRandomTetromino = useCallback((): TetrominoType => {
     const types = Object.keys(TETROMINOS) as TetrominoType[];
     return types[Math.floor(Math.random() * types.length)];
   }, []);
 
-  // Generate a new piece
   const generateNewPiece = useCallback(() => {
-    // If we already have a next piece, use that, otherwise generate a random one
     const pieceType = nextPiece || getRandomTetromino();
-    // Generate the next piece for preview
     const newNextPiece = getRandomTetromino();
     
     setCurrentPiece({
@@ -99,7 +93,6 @@ const Tetris = () => {
     setNextPiece(newNextPiece);
   }, [nextPiece, getRandomTetromino]);
 
-  // Initialize the game
   const initGame = useCallback(() => {
     setBoard(createEmptyBoard());
     setCurrentPiece(null);
@@ -110,7 +103,6 @@ const Tetris = () => {
     setGameStatus("paused");
     setTimer(0);
     
-    // Clear any existing timers/intervals to prevent duplications
     if (timerIdRef.current) {
       clearInterval(timerIdRef.current);
       timerIdRef.current = null;
@@ -121,41 +113,31 @@ const Tetris = () => {
       gameLoopIdRef.current = null;
     }
     
-    // Reset time reference
     lastTimeRef.current = 0;
     
     generateNewPiece();
   }, [createEmptyBoard, generateNewPiece]);
 
-  // Get the actual coordinates of a piece considering its position and rotation
   const getPieceCoordinates = useCallback((piece: { type: TetrominoType; position: Position; rotation: number }) => {
     const { type, position, rotation } = piece;
     const tetromino = TETROMINOS[type];
     
-    // Apply rotation (0, 90, 180, 270 degrees)
     const rotatedPiece = tetromino.map(([y, x]) => {
-      // 0 degrees: return as is
       if (rotation === 0) return [y, x];
-      // 90 degrees
       if (rotation === 1) return [x, -y];
-      // 180 degrees
       if (rotation === 2) return [-y, -x];
-      // 270 degrees
-      return [-x, y]; // rotation === 3
+      return [-x, y];
     });
     
-    // Apply position offset
     return rotatedPiece.map(([y, x]) => ({
       y: y + position.y,
       x: x + position.x,
     }));
   }, []);
 
-  // Check if a piece can be placed at a given position
   const isValidMove = useCallback((piece: { type: TetrominoType; position: Position; rotation: number }) => {
     const coords = getPieceCoordinates(piece);
     
-    // Check if all coordinates are within bounds and not overlapping existing pieces
     return coords.every(({ y, x }) => {
       const isWithinBounds = y >= 0 && y < BOARD_HEIGHT && x >= 0 && x < BOARD_WIDTH;
       const isNotOverlapping = isWithinBounds && board[y]?.[x] === null;
@@ -163,7 +145,6 @@ const Tetris = () => {
     });
   }, [board, getPieceCoordinates]);
 
-  // Move the current piece down, left, or right
   const movePiece = useCallback((dx: number, dy: number) => {
     if (!currentPiece || gameStatus !== "playing") return;
     
@@ -182,7 +163,6 @@ const Tetris = () => {
       return true;
     }
     
-    // If we tried to move down and it failed, the piece has landed
     if (dy > 0) {
       placePiece();
       return false;
@@ -191,7 +171,6 @@ const Tetris = () => {
     return false;
   }, [currentPiece, gameStatus, isValidMove]);
 
-  // Rotate the current piece
   const rotatePiece = useCallback(() => {
     if (!currentPiece || gameStatus !== "playing") return;
     
@@ -202,11 +181,9 @@ const Tetris = () => {
       rotation: newRotation,
     };
     
-    // If rotation is valid, update the piece
     if (isValidMove(newPiece)) {
       setCurrentPiece(newPiece);
     } else {
-      // Try wall kicks - move the piece left or right to make space for rotation
       const wallKickOffsets = [-1, 1, -2, 2];
       for (const offset of wallKickOffsets) {
         const kickedPiece = {
@@ -225,13 +202,11 @@ const Tetris = () => {
     }
   }, [currentPiece, gameStatus, isValidMove]);
 
-  // Place the current piece on the board
   const placePiece = useCallback(() => {
     if (!currentPiece) return;
     
     const coords = getPieceCoordinates(currentPiece);
     
-    // Create a new board with the placed piece
     const newBoard = board.map(row => [...row]);
     coords.forEach(({ y, x }) => {
       if (y >= 0 && y < BOARD_HEIGHT && x >= 0 && x < BOARD_WIDTH) {
@@ -241,11 +216,9 @@ const Tetris = () => {
     
     setBoard(newBoard);
     
-    // If any of the placed blocks are at the top row, game over
     if (coords.some(({ y }) => y === 0)) {
       setGameStatus("over");
       
-      // Clean up timers
       if (timerIdRef.current) {
         clearInterval(timerIdRef.current);
         timerIdRef.current = null;
@@ -258,46 +231,36 @@ const Tetris = () => {
       return;
     }
     
-    // Generate a new piece
     generateNewPiece();
     
-    // Check for completed rows and update score
     checkRows(newBoard);
   }, [board, currentPiece, generateNewPiece, getPieceCoordinates]);
 
-  // Check for completed rows and update the board
   const checkRows = useCallback((board: TetrisBoard) => {
     let newBoard = [...board];
     let completedRows = 0;
     
-    // Check each row from bottom to top
     for (let y = BOARD_HEIGHT - 1; y >= 0; y--) {
-      // If row is completely filled (no nulls)
       if (newBoard[y].every(cell => cell !== null)) {
         completedRows++;
         
-        // Remove the completed row
         newBoard = [
-          Array(BOARD_WIDTH).fill(null), // Add empty row at top
-          ...newBoard.slice(0, y), // Keep rows above
-          ...newBoard.slice(y + 1) // Keep rows below, skipping the completed row
+          Array(BOARD_WIDTH).fill(null),
+          ...newBoard.slice(0, y),
+          ...newBoard.slice(y + 1)
         ];
       }
     }
     
     if (completedRows > 0) {
-      // Update board
       setBoard(newBoard);
       
-      // Calculate score based on number of lines cleared and current level
       const newScore = score + calculateScore(completedRows, level);
       setScore(newScore);
       
-      // Update lines cleared
       const newLinesCleared = linesCleared + completedRows;
       setLinesCleared(newLinesCleared);
       
-      // Update level every 10 lines
       const newLevel = Math.floor(newLinesCleared / 10) + 1;
       if (newLevel > level) {
         setLevel(newLevel);
@@ -305,13 +268,11 @@ const Tetris = () => {
     }
   }, [score, level, linesCleared]);
 
-  // Calculate score based on number of lines cleared and current level
   const calculateScore = (lines: number, level: number) => {
-    const basePoints = [0, 40, 100, 300, 1200]; // Points for 0, 1, 2, 3, 4 lines
+    const basePoints = [0, 40, 100, 300, 1200];
     return basePoints[lines] * level;
   };
 
-  // Hard drop the piece to the lowest possible position
   const hardDrop = useCallback(() => {
     if (!currentPiece || gameStatus !== "playing") return;
     
@@ -336,7 +297,6 @@ const Tetris = () => {
       }
     }
     
-    // Move the piece down by the calculated distance
     if (dropDistance > 0) {
       setCurrentPiece({
         ...currentPiece,
@@ -346,15 +306,12 @@ const Tetris = () => {
         },
       });
       
-      // Add some bonus points for hard drop
       setScore(prevScore => prevScore + dropDistance);
       
-      // Place the piece immediately after hard drop
       setTimeout(() => placePiece(), 0);
     }
   }, [currentPiece, gameStatus, isValidMove, placePiece]);
 
-  // Game loop
   const gameLoop = useCallback((timestamp: number) => {
     if (gameStatus !== "playing") return;
     
@@ -366,35 +323,33 @@ const Tetris = () => {
     
     if (deltaTime > GAME_SPEEDS[speed]) {
       lastTimeRef.current = timestamp;
-      movePiece(0, 1); // Move down
+      movePiece(0, 1);
     }
     
-    // Only request next frame if game is still playing
     if (gameStatus === "playing") {
       gameLoopIdRef.current = requestAnimationFrame(gameLoop);
     }
   }, [gameStatus, movePiece, speed]);
 
-  // Handle keyboard input
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (gameStatus !== "playing") return;
       
       switch (e.code) {
         case "ArrowLeft":
-          movePiece(-1, 0); // Move left
+          movePiece(-1, 0);
           break;
         case "ArrowRight":
-          movePiece(1, 0); // Move right
+          movePiece(1, 0);
           break;
         case "ArrowDown":
-          movePiece(0, 1); // Move down
+          movePiece(0, 1);
           break;
         case "ArrowUp":
-          rotatePiece(); // Rotate
+          rotatePiece();
           break;
         case "Space":
-          hardDrop(); // Hard drop
+          hardDrop();
           break;
         default:
           break;
@@ -408,10 +363,7 @@ const Tetris = () => {
     };
   }, [gameStatus, movePiece, rotatePiece, hardDrop]);
 
-  // Initialize game on mount
   useEffect(() => {
-    document.title = "Tetris - GameHub";
-    
     if (!isInitializedRef.current) {
       initGame();
       isInitializedRef.current = true;
@@ -430,26 +382,21 @@ const Tetris = () => {
     };
   }, [initGame]);
 
-  // Start or stop game loop based on game status
   useEffect(() => {
-    // Clean up any existing animation frames first
     if (gameLoopIdRef.current) {
       cancelAnimationFrame(gameLoopIdRef.current);
       gameLoopIdRef.current = null;
     }
     
-    // Clean up any existing timer
     if (timerIdRef.current) {
       clearInterval(timerIdRef.current);
       timerIdRef.current = null;
     }
     
     if (gameStatus === "playing") {
-      // Start new game loop
       lastTimeRef.current = 0;
       gameLoopIdRef.current = requestAnimationFrame(gameLoop);
       
-      // Start timer
       timerIdRef.current = window.setInterval(() => {
         setTimer(prev => prev + 1);
       }, 1000);
@@ -468,15 +415,12 @@ const Tetris = () => {
     };
   }, [gameStatus, gameLoop]);
 
-  // Handle pause/resume
   const handlePauseResume = () => {
     if (gameStatus === "over") return;
     setGameStatus(prev => prev === "playing" ? "paused" : "playing");
   };
 
-  // Reset the game
   const handleReset = () => {
-    // Clean up existing timers
     if (gameLoopIdRef.current) {
       cancelAnimationFrame(gameLoopIdRef.current);
       gameLoopIdRef.current = null;
@@ -488,11 +432,9 @@ const Tetris = () => {
     }
     
     initGame();
-    // Start the game immediately after reset
     setGameStatus("playing");
   };
 
-  // Change game speed
   const handleSpeedChange = (newSpeed: keyof typeof GAME_SPEEDS) => {
     setSpeed(newSpeed);
   };
@@ -503,12 +445,9 @@ const Tetris = () => {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // Render the game board
   const renderBoard = () => {
-    // Create a copy of the board to render the current piece
     const displayBoard = board.map(row => [...row]);
     
-    // Add the current falling piece to the display board
     if (currentPiece && gameStatus === "playing") {
       const pieceCoords = getPieceCoordinates(currentPiece);
       pieceCoords.forEach(({ y, x }) => {
@@ -537,20 +476,15 @@ const Tetris = () => {
     );
   };
 
-  // Render the next piece preview
   const renderNextPiece = () => {
     if (!nextPiece) return null;
     
-    // Create a 4x4 grid for the next piece preview
     const previewGrid = Array(4).fill(null).map(() => Array(4).fill(null));
     
-    // Get the base tetromino shape
     const tetromino = TETROMINOS[nextPiece];
     
-    // Center the piece in the preview
     const centerOffset = { x: 1, y: 1 };
     
-    // Place the piece in the preview grid
     tetromino.forEach(([y, x]) => {
       const newY = y + centerOffset.y;
       const newX = x + centerOffset.x;
@@ -606,45 +540,6 @@ const Tetris = () => {
             <div className="order-2 md:order-1">
               {renderBoard()}
               
-              <div className="flex justify-center mt-6 gap-2">
-                <button 
-                  className="game-control-button w-12 h-12 bg-primary text-primary-foreground"
-                  onClick={() => movePiece(-1, 0)}
-                  disabled={gameStatus !== "playing"}
-                >
-                  ←
-                </button>
-                <button 
-                  className="game-control-button w-12 h-12 bg-primary text-primary-foreground"
-                  onClick={() => movePiece(0, 1)}
-                  disabled={gameStatus !== "playing"}
-                >
-                  ↓
-                </button>
-                <button 
-                  className="game-control-button w-12 h-12 bg-primary text-primary-foreground"
-                  onClick={rotatePiece}
-                  disabled={gameStatus !== "playing"}
-                >
-                  ↻
-                </button>
-                <button 
-                  className="game-control-button w-12 h-12 bg-primary text-primary-foreground"
-                  onClick={() => movePiece(1, 0)}
-                  disabled={gameStatus !== "playing"}
-                >
-                  →
-                </button>
-                <button 
-                  className="game-control-button w-12 h-12 bg-primary text-primary-foreground"
-                  onClick={hardDrop}
-                  disabled={gameStatus !== "playing"}
-                >
-                  ⇓
-                </button>
-              </div>
-              
-              {/* New circular buttons at the bottom */}
               <div className="flex justify-center mt-6 gap-4">
                 <button 
                   className="rounded-full w-10 h-10 bg-cyan-400 text-white shadow-md hover:bg-cyan-500 transition-colors"
