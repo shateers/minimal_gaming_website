@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../../components/layout/Navbar";
@@ -66,9 +65,8 @@ const Tetris = () => {
   const [linesCleared, setLinesCleared] = useState<number>(0);
   const [speed, setSpeed] = useState<keyof typeof GAME_SPEEDS>("medium");
   const [timer, setTimer] = useState<number>(0);
-  const [gameInterval, setGameInterval] = useState<number | null>(null);
-  const [timerInterval, setTimerInterval] = useState<number | null>(null);
   
+  const timerIntervalRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
   const gameLoopRef = useRef<number | null>(null);
 
@@ -228,11 +226,13 @@ const Tetris = () => {
     // If any of the placed blocks are at the top row, game over
     if (coords.some(({ y }) => y === 0)) {
       setGameStatus("over");
-      if (timerInterval) {
-        clearInterval(timerInterval);
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
       }
-      if (gameInterval) {
-        clearInterval(gameInterval);
+      if (gameLoopRef.current) {
+        cancelAnimationFrame(gameLoopRef.current);
+        gameLoopRef.current = null;
       }
       return;
     }
@@ -242,7 +242,7 @@ const Tetris = () => {
     
     // Check for completed rows and update score
     checkRows(newBoard);
-  }, [board, currentPiece, generateNewPiece, getPieceCoordinates, gameInterval, timerInterval]);
+  }, [board, currentPiece, generateNewPiece, getPieceCoordinates, gameLoopRef, timerIntervalRef]);
 
   // Check for completed rows and update the board
   const checkRows = useCallback((board: TetrisBoard) => {
@@ -388,35 +388,43 @@ const Tetris = () => {
     initGame();
     
     // Start timer
-    const interval = window.setInterval(() => {
+    timerIntervalRef.current = window.setInterval(() => {
       setTimer(prev => prev + 1);
     }, 1000);
-    setTimerInterval(interval);
     
     // Start game loop
     gameLoopRef.current = requestAnimationFrame(gameLoop);
     
     return () => {
-      if (timerInterval) {
-        clearInterval(timerInterval);
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
       }
       if (gameLoopRef.current) {
         cancelAnimationFrame(gameLoopRef.current);
+        gameLoopRef.current = null;
       }
     };
   }, [initGame, gameLoop]);
 
   // Update game loop when game status changes
   useEffect(() => {
-    if (gameStatus === "playing") {
-      gameLoopRef.current = requestAnimationFrame(gameLoop);
-    } else if (gameLoopRef.current) {
+    // Cleanup previous animation frame if it exists
+    if (gameLoopRef.current) {
       cancelAnimationFrame(gameLoopRef.current);
+      gameLoopRef.current = null;
+    }
+    
+    // Only start a new game loop if the game is playing
+    if (gameStatus === "playing") {
+      lastTimeRef.current = 0; // Reset last time to avoid sudden drops
+      gameLoopRef.current = requestAnimationFrame(gameLoop);
     }
     
     return () => {
       if (gameLoopRef.current) {
         cancelAnimationFrame(gameLoopRef.current);
+        gameLoopRef.current = null;
       }
     };
   }, [gameStatus, gameLoop]);
@@ -425,44 +433,41 @@ const Tetris = () => {
   const handlePauseResume = () => {
     if (gameStatus === "playing") {
       setGameStatus("paused");
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        setTimerInterval(null);
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
       }
-      if (gameLoopRef.current) {
-        cancelAnimationFrame(gameLoopRef.current);
-        gameLoopRef.current = null;
-      }
+      // No need to cancel animation frame here as the useEffect will handle it
     } else if (gameStatus === "paused") {
       setGameStatus("playing");
-      const interval = window.setInterval(() => {
+      timerIntervalRef.current = window.setInterval(() => {
         setTimer(prev => prev + 1);
       }, 1000);
-      setTimerInterval(interval);
-      lastTimeRef.current = 0; // Reset last time to avoid sudden drops
-      gameLoopRef.current = requestAnimationFrame(gameLoop);
+      // No need to start animation frame here as the useEffect will handle it
     }
   };
 
   // Reset the game
   const handleReset = () => {
+    // Clean up existing timers and animation frames
     if (gameLoopRef.current) {
       cancelAnimationFrame(gameLoopRef.current);
+      gameLoopRef.current = null;
     }
-    if (timerInterval) {
-      clearInterval(timerInterval);
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
     }
     
     initGame();
     setTimer(0);
     
-    const interval = window.setInterval(() => {
+    timerIntervalRef.current = window.setInterval(() => {
       setTimer(prev => prev + 1);
     }, 1000);
-    setTimerInterval(interval);
     
     lastTimeRef.current = 0;
-    gameLoopRef.current = requestAnimationFrame(gameLoop);
+    // Let the useEffect handle starting the game loop
   };
 
   // Change game speed
