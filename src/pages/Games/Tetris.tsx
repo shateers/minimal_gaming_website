@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../../components/layout/Navbar";
@@ -609,39 +608,71 @@ const Tetris = () => {
               
               <div className="flex justify-center mt-6 gap-2">
                 <button 
-                  className="game-control-button w-12 h-12"
+                  className="game-control-button w-12 h-12 bg-primary text-primary-foreground"
                   onClick={() => movePiece(-1, 0)}
                   disabled={gameStatus !== "playing"}
                 >
                   ←
                 </button>
                 <button 
-                  className="game-control-button w-12 h-12"
+                  className="game-control-button w-12 h-12 bg-primary text-primary-foreground"
                   onClick={() => movePiece(0, 1)}
                   disabled={gameStatus !== "playing"}
                 >
                   ↓
                 </button>
                 <button 
-                  className="game-control-button w-12 h-12"
+                  className="game-control-button w-12 h-12 bg-primary text-primary-foreground"
                   onClick={rotatePiece}
                   disabled={gameStatus !== "playing"}
                 >
                   ↻
                 </button>
                 <button 
-                  className="game-control-button w-12 h-12"
+                  className="game-control-button w-12 h-12 bg-primary text-primary-foreground"
                   onClick={() => movePiece(1, 0)}
                   disabled={gameStatus !== "playing"}
                 >
                   →
                 </button>
                 <button 
-                  className="game-control-button w-12 h-12"
+                  className="game-control-button w-12 h-12 bg-primary text-primary-foreground"
                   onClick={hardDrop}
                   disabled={gameStatus !== "playing"}
                 >
                   ⇓
+                </button>
+              </div>
+              
+              {/* New circular buttons at the bottom */}
+              <div className="flex justify-center mt-6 gap-4">
+                <button 
+                  className="rounded-full w-10 h-10 bg-cyan-400 text-white shadow-md hover:bg-cyan-500 transition-colors"
+                  onClick={() => movePiece(-1, 0)}
+                  disabled={gameStatus !== "playing"}
+                >
+                  ←
+                </button>
+                <button 
+                  className="rounded-full w-10 h-10 bg-purple-500 text-white shadow-md hover:bg-purple-600 transition-colors"
+                  onClick={rotatePiece}
+                  disabled={gameStatus !== "playing"}
+                >
+                  ↻
+                </button>
+                <button 
+                  className="rounded-full w-10 h-10 bg-orange-500 text-white shadow-md hover:bg-orange-600 transition-colors"
+                  onClick={() => movePiece(0, 1)}
+                  disabled={gameStatus !== "playing"}
+                >
+                  ↓
+                </button>
+                <button 
+                  className="rounded-full w-10 h-10 bg-green-500 text-white shadow-md hover:bg-green-600 transition-colors"
+                  onClick={() => movePiece(1, 0)}
+                  disabled={gameStatus !== "playing"}
+                >
+                  →
                 </button>
               </div>
             </div>
@@ -694,7 +725,7 @@ const Tetris = () => {
               <div className="flex gap-2">
                 <button 
                   onClick={handleReset} 
-                  className="game-control-button flex-1"
+                  className="game-control-button flex-1 bg-primary text-primary-foreground"
                 >
                   {gameStatus === "paused" && !score ? "Start" : "Restart"}
                 </button>
@@ -702,7 +733,7 @@ const Tetris = () => {
                 {gameStatus !== "over" && (gameStatus === "playing" || score > 0) && (
                   <button 
                     onClick={handlePauseResume} 
-                    className="game-control-button flex-1"
+                    className="game-control-button flex-1 bg-primary text-primary-foreground"
                   >
                     {gameStatus === "playing" ? "Pause" : "Resume"}
                   </button>
