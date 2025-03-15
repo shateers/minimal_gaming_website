@@ -15,34 +15,57 @@ const Index = () => {
       title: "Tic Tac Toe",
       description: "The classic game of X's and O's. Challenge yourself against the computer or play with a friend.",
       href: "/games/tic-tac-toe",
-      imageSrc: "/lovable-uploads/9c2e48ad-a8fd-4c84-bf60-a9fe9449d30d.png"
+      imageSrc: "/lovable-uploads/a5fd6b5d-44d1-4d31-92ee-3d48d00e55e2.png"
     },
     {
       title: "Snake",
       description: "Guide the snake to eat apples while avoiding collisions in this nostalgic arcade classic.",
       href: "/games/snake",
-      imageSrc: "/lovable-uploads/d83c2233-cde9-49cf-b688-fefbd8e99648.png"
+      imageSrc: "/lovable-uploads/067daa72-76de-46ae-9784-4b47edab41c4.png"
     },
     {
       title: "Sudoku",
       description: "Test your logical thinking with this number placement puzzle. Multiple difficulty levels available.",
       href: "/games/sudoku",
-      imageSrc: "/lovable-uploads/9c9720ef-62b5-49af-8948-9b687ae20394.png"
+      imageSrc: "/lovable-uploads/513aa719-37f2-4421-a76d-127c35d8dd78.png"
     },
     {
       title: "Tetris",
       description: "Arrange falling blocks to create and clear complete lines in this timeless puzzle game.",
       href: "/games/tetris",
+      imageSrc: "/lovable-uploads/513aa719-37f2-4421-a76d-127c35d8dd78.png"
     },
     {
       title: "Crossword",
       description: "Challenge your vocabulary and knowledge with crossword puzzles of varying difficulty.",
       href: "/games/crossword",
+      imageSrc: "/lovable-uploads/067daa72-76de-46ae-9784-4b47edab41c4.png"
     },
     {
       title: "Jigsaw Puzzle",
       description: "Piece together beautiful images in this relaxing jigsaw puzzle game with multiple difficulty options.",
       href: "/games/jigsaw",
+      imageSrc: "/lovable-uploads/a5fd6b5d-44d1-4d31-92ee-3d48d00e55e2.png"
+    },
+    {
+      title: "Tango",
+      description: "Fill a grid with two symbols, ensuring each row and column has an equal number without more than two identical symbols adjacent.",
+      href: "/games/tango",
+    },
+    {
+      title: "Queens",
+      description: "Place crowns on a grid, ensuring no two crowns share the same row, column, or designated region.",
+      href: "/games/queens",
+    },
+    {
+      title: "Crossclimb",
+      description: "Unlock a series of trivia questions, progressing through levels as you answer correctly.",
+      href: "/games/crossclimb",
+    },
+    {
+      title: "Pinpoint",
+      description: "Guess the category based on provided clues, testing your ability to identify connections between words.",
+      href: "/games/pinpoint",
     },
   ];
 

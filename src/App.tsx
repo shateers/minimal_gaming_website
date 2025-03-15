@@ -11,6 +11,10 @@ import Sudoku from "./pages/Games/Sudoku";
 import Tetris from "./pages/Games/Tetris";
 import Crossword from "./pages/Games/Crossword";
 import JigsawPuzzle from "./pages/Games/JigsawPuzzle";
+import Tango from "./pages/Games/Tango";
+import Queens from "./pages/Games/Queens";
+import Crossclimb from "./pages/Games/Crossclimb";
+import Pinpoint from "./pages/Games/Pinpoint";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +33,10 @@ const App = () => (
           <Route path="/games/tetris" element={<Tetris />} />
           <Route path="/games/crossword" element={<Crossword />} />
           <Route path="/games/jigsaw" element={<JigsawPuzzle />} />
+          <Route path="/games/tango" element={<Tango />} />
+          <Route path="/games/queens" element={<Queens />} />
+          <Route path="/games/crossclimb" element={<Crossclimb />} />
+          <Route path="/games/pinpoint" element={<Pinpoint />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
