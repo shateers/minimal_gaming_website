@@ -15,16 +15,19 @@ const Index = () => {
       title: "Tic Tac Toe",
       description: "The classic game of X's and O's. Challenge yourself against the computer or play with a friend.",
       href: "/games/tic-tac-toe",
+      imageSrc: "/lovable-uploads/9c2e48ad-a8fd-4c84-bf60-a9fe9449d30d.png"
     },
     {
       title: "Snake",
       description: "Guide the snake to eat apples while avoiding collisions in this nostalgic arcade classic.",
       href: "/games/snake",
+      imageSrc: "/lovable-uploads/d83c2233-cde9-49cf-b688-fefbd8e99648.png"
     },
     {
       title: "Sudoku",
       description: "Test your logical thinking with this number placement puzzle. Multiple difficulty levels available.",
       href: "/games/sudoku",
+      imageSrc: "/lovable-uploads/9c9720ef-62b5-49af-8948-9b687ae20394.png"
     },
     {
       title: "Tetris",
@@ -71,6 +74,7 @@ const Index = () => {
                 title={game.title}
                 description={game.description}
                 href={game.href}
+                imageSrc={game.imageSrc}
                 index={index}
               />
             ))}

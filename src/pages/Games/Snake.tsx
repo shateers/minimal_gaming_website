@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
+import { useIsMobile } from "../../hooks/use-mobile";
 
 type Direction = "UP" | "DOWN" | "LEFT" | "RIGHT";
 type Position = { x: number; y: number };
@@ -21,10 +22,12 @@ const Snake = () => {
   const [speed, setSpeed] = useState<number>(INITIAL_SPEED);
   const [timer, setTimer] = useState<number>(0);
   const [timerInterval, setTimerInterval] = useState<number | null>(null);
+  const isMobile = useIsMobile();
   
   const gameLoopRef = useRef<number | null>(null);
   const lastDirectionRef = useRef<Direction>("RIGHT");
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const touchStartRef = useRef<Position | null>(null);
 
   // Generate random food position that isn't on the snake
   const generateFood = useCallback((): Position => {
@@ -91,6 +94,35 @@ const Snake = () => {
     }
   };
 
+  // Handle direction change
+  const handleDirectionChange = (newDirection: Direction) => {
+    if (gameStatus !== "playing") return;
+    
+    // Prevent 180-degree turns
+    switch (newDirection) {
+      case "UP":
+        if (lastDirectionRef.current !== "DOWN") {
+          setDirection("UP");
+        }
+        break;
+      case "DOWN":
+        if (lastDirectionRef.current !== "UP") {
+          setDirection("DOWN");
+        }
+        break;
+      case "LEFT":
+        if (lastDirectionRef.current !== "RIGHT") {
+          setDirection("LEFT");
+        }
+        break;
+      case "RIGHT":
+        if (lastDirectionRef.current !== "LEFT") {
+          setDirection("RIGHT");
+        }
+        break;
+    }
+  };
+
   // Handle keydown events for controls
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -98,24 +130,16 @@ const Snake = () => {
       
       switch (e.key) {
         case "ArrowUp":
-          if (lastDirectionRef.current !== "DOWN") {
-            setDirection("UP");
-          }
+          handleDirectionChange("UP");
           break;
         case "ArrowDown":
-          if (lastDirectionRef.current !== "UP") {
-            setDirection("DOWN");
-          }
+          handleDirectionChange("DOWN");
           break;
         case "ArrowLeft":
-          if (lastDirectionRef.current !== "RIGHT") {
-            setDirection("LEFT");
-          }
+          handleDirectionChange("LEFT");
           break;
         case "ArrowRight":
-          if (lastDirectionRef.current !== "LEFT") {
-            setDirection("RIGHT");
-          }
+          handleDirectionChange("RIGHT");
           break;
         case " ": // Space bar to pause/resume
           togglePause();
@@ -128,6 +152,62 @@ const Snake = () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [gameStatus]);
+
+  // Handle touch events for mobile controls
+  useEffect(() => {
+    const handleTouchStart = (e: TouchEvent) => {
+      if (gameStatus !== "playing") return;
+      
+      const touch = e.touches[0];
+      touchStartRef.current = { 
+        x: touch.clientX, 
+        y: touch.clientY 
+      };
+    };
+    
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (gameStatus !== "playing" || !touchStartRef.current) return;
+      
+      const touch = e.changedTouches[0];
+      const endX = touch.clientX;
+      const endY = touch.clientY;
+      
+      const dx = endX - touchStartRef.current.x;
+      const dy = endY - touchStartRef.current.y;
+      
+      // Determine if the swipe was horizontal or vertical
+      if (Math.abs(dx) > Math.abs(dy)) {
+        // Horizontal swipe
+        if (dx > 0) {
+          handleDirectionChange("RIGHT");
+        } else {
+          handleDirectionChange("LEFT");
+        }
+      } else {
+        // Vertical swipe
+        if (dy > 0) {
+          handleDirectionChange("DOWN");
+        } else {
+          handleDirectionChange("UP");
+        }
+      }
+      
+      touchStartRef.current = null;
+    };
+    
+    const canvas = canvasRef.current;
+    if (canvas && isMobile) {
+      canvas.addEventListener("touchstart", handleTouchStart);
+      canvas.addEventListener("touchend", handleTouchEnd);
+    }
+    
+    return () => {
+      if (canvas) {
+        canvas.removeEventListener("touchstart", handleTouchStart);
+        canvas.removeEventListener("touchend", handleTouchEnd);
+      }
+    };
+  }, [gameStatus, isMobile]);
 
   // Set page title
   useEffect(() => {
@@ -444,6 +524,45 @@ const Snake = () => {
             </div>
           </div>
 
+          {isMobile && gameStatus === "playing" && (
+            <div className="mb-8">
+              <div className="flex justify-center">
+                <button 
+                  onClick={() => handleDirectionChange("UP")}
+                  className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center text-2xl shadow-md active:scale-95 transition-transform"
+                  aria-label="Up"
+                >
+                  ↑
+                </button>
+              </div>
+              <div className="flex justify-center gap-8 my-2">
+                <button 
+                  onClick={() => handleDirectionChange("LEFT")}
+                  className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center text-2xl shadow-md active:scale-95 transition-transform"
+                  aria-label="Left"
+                >
+                  ←
+                </button>
+                <button 
+                  onClick={() => handleDirectionChange("RIGHT")}
+                  className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center text-2xl shadow-md active:scale-95 transition-transform"
+                  aria-label="Right"
+                >
+                  →
+                </button>
+              </div>
+              <div className="flex justify-center">
+                <button 
+                  onClick={() => handleDirectionChange("DOWN")}
+                  className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center text-2xl shadow-md active:scale-95 transition-transform"
+                  aria-label="Down"
+                >
+                  ↓
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="flex flex-col items-center space-y-4">
             <div className="text-center mb-2">
               {gameStatus === "over" && (
@@ -472,8 +591,8 @@ const Snake = () => {
             </div>
             
             <div className="mt-6 text-muted-foreground text-sm max-w-md text-center">
-              <p><strong>Controls:</strong> Use the arrow keys to move the snake. Collect the red food to grow and earn points.</p>
-              <p className="mt-2"><strong>Tip:</strong> Press the spacebar to pause/resume the game.</p>
+              <p><strong>Controls:</strong> {isMobile ? "Use the on-screen buttons or swipe" : "Use the arrow keys"} to move the snake. Collect the red food to grow and earn points.</p>
+              <p className="mt-2"><strong>Tip:</strong> {isMobile ? "Tap the Pause button" : "Press the spacebar"} to pause/resume the game.</p>
             </div>
           </div>
         </div>

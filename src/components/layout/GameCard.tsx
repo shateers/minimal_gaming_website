@@ -62,7 +62,7 @@ const GameCard = ({ title, description, href, imageSrc, index }: GameCardProps) 
                 <img 
                   src={imageSrc} 
                   alt={title} 
-                  className="w-full h-full object-cover transition-transform duration-700 ease-out"
+                  className="w-full h-full object-contain transition-transform duration-700 ease-out"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-muted-foreground">
