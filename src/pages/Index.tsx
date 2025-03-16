@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
@@ -14,7 +15,7 @@ const Index = () => {
       title: "Tic Tac Toe",
       description: "The classic game of X's and O's. Challenge yourself against the computer or play with a friend.",
       href: "/games/tic-tac-toe",
-      imageSrc: "/lovable-uploads/b785a40d-143f-411a-9a4b-a80d01eb7ba9.png"
+      imageSrc: "/lovable-uploads/ce7a53b3-af16-4698-8ed6-6aab727211fa.png"
     },
     {
       title: "Snake",
@@ -26,7 +27,7 @@ const Index = () => {
       title: "Sudoku",
       description: "Test your logical thinking with this number placement puzzle. Multiple difficulty levels available.",
       href: "/games/sudoku",
-      imageSrc: "/lovable-uploads/ce7a53b3-af16-4698-8ed6-6aab727211fa.png"
+      imageSrc: "/lovable-uploads/b785a40d-143f-411a-9a4b-a80d01eb7ba9.png"
     },
     {
       title: "Tetris",
