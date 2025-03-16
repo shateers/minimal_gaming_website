@@ -24,7 +24,7 @@ const Navbar = () => {
           to="/" 
           className="text-xl font-semibold tracking-tight transition-transform hover:scale-105"
         >
-          GameHub
+          Shateer Games
         </Link>
 
         <nav className="hidden md:flex items-center space-x-8">

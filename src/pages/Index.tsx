@@ -7,7 +7,7 @@ import FadeIn from "../components/animations/FadeIn";
 
 const Index = () => {
   useEffect(() => {
-    document.title = "GameHub - Minimalist Gaming Experience";
+    document.title = "Shateer Games - Minimalist Gaming Experience";
   }, []);
 
   const games = [
@@ -107,7 +107,7 @@ const Index = () => {
         <section className="max-w-7xl mx-auto py-16 border-t border-border">
           <FadeIn>
             <h2 className="text-3xl font-bold tracking-tight mb-8 text-center">
-              Why Choose GameHub?
+              Why Choose Shateer Games?
             </h2>
           </FadeIn>
           
