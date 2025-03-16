@@ -1,6 +1,9 @@
 
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { saveGameScore } from "@/services/scoreService";
+import { useToast } from "@/components/ui/use-toast";
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
 
@@ -14,6 +17,9 @@ const TicTacToe = () => {
   const [winner, setWinner] = useState<Player | "draw">(null);
   const [timer, setTimer] = useState<number>(0);
   const [timerInterval, setTimerInterval] = useState<number | null>(null);
+  const [moves, setMoves] = useState<number>(0);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     document.title = "Tic Tac Toe - GameHub";
@@ -42,6 +48,9 @@ const TicTacToe = () => {
       if (timerInterval) {
         clearInterval(timerInterval);
       }
+      
+      // Save score if user is logged in
+      saveScore(currentWinner);
     } else if (!board.includes(null)) {
       // If no winner and board is full, it's a draw
       setWinner("draw");
@@ -49,8 +58,33 @@ const TicTacToe = () => {
       if (timerInterval) {
         clearInterval(timerInterval);
       }
+      
+      // Save score if user is logged in
+      saveScore("draw");
     }
   }, [board, timerInterval]);
+
+  const saveScore = async (result: Player | "draw") => {
+    if (!user) return;
+    
+    try {
+      let score = 0;
+      if (result === "X") score = 10;
+      else if (result === "O") score = 5;
+      else if (result === "draw") score = 3;
+      
+      await saveGameScore({
+        user_id: user.id,
+        game_name: "tic-tac-toe",
+        score: score,
+        time_taken: timer,
+        moves: moves,
+        completed: true
+      });
+    } catch (error) {
+      console.error("Error saving score:", error);
+    }
+  };
 
   const handleClick = (index: number) => {
     if (board[index] || gameStatus !== "playing") {
@@ -61,6 +95,7 @@ const TicTacToe = () => {
     newBoard[index] = isXNext ? "X" : "O";
     setBoard(newBoard);
     setIsXNext(!isXNext);
+    setMoves(moves + 1);
   };
 
   const handleReset = () => {
@@ -69,6 +104,7 @@ const TicTacToe = () => {
     setGameStatus("playing");
     setWinner(null);
     setTimer(0);
+    setMoves(0);
     
     if (timerInterval) {
       clearInterval(timerInterval);
@@ -148,9 +184,17 @@ const TicTacToe = () => {
               <h1 className="text-3xl font-bold">Tic Tac Toe</h1>
             </div>
 
-            <div className="flex items-center bg-secondary/30 px-4 py-2 rounded-lg">
-              <div className="text-lg font-medium">
-                Time: {formatTime(timer)}
+            <div className="flex items-center gap-4">
+              <div className="bg-secondary/30 px-4 py-2 rounded-lg">
+                <div className="text-lg font-medium">
+                  Time: {formatTime(timer)}
+                </div>
+              </div>
+              
+              <div className="bg-secondary/30 px-4 py-2 rounded-lg">
+                <div className="text-lg font-medium">
+                  Moves: {moves}
+                </div>
               </div>
             </div>
           </div>
@@ -185,6 +229,25 @@ const TicTacToe = () => {
                 >
                   {gameStatus === "playing" ? "Pause" : "Resume"}
                 </button>
+              )}
+              
+              {!user && gameStatus === "over" && (
+                <div className="mt-4 text-center">
+                  <p className="text-muted-foreground mb-2">Sign in to save your scores and compete on the leaderboard!</p>
+                  <Link to="/signin" className="text-primary hover:underline">
+                    Sign In
+                  </Link>
+                  {" or "}
+                  <Link to="/signup" className="text-primary hover:underline">
+                    Sign Up
+                  </Link>
+                </div>
+              )}
+              
+              {user && gameStatus === "over" && (
+                <div className="mt-4 text-center">
+                  <p className="text-muted-foreground">Your score has been saved! Check the <Link to="/leaderboard?game=tic-tac-toe" className="text-primary hover:underline">leaderboard</Link>.</p>
+                </div>
               )}
             </div>
           </div>

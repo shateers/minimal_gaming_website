@@ -4,7 +4,12 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/Index";
+import SignIn from "./pages/Auth/SignIn";
+import SignUp from "./pages/Auth/SignUp";
+import Profile from "./pages/Profile";
+import Leaderboard from "./pages/Leaderboard";
 import TicTacToe from "./pages/Games/TicTacToe";
 import Snake from "./pages/Games/Snake";
 import Sudoku from "./pages/Games/Sudoku";
@@ -22,25 +27,31 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/games/tic-tac-toe" element={<TicTacToe />} />
-          <Route path="/games/snake" element={<Snake />} />
-          <Route path="/games/sudoku" element={<Sudoku />} />
-          <Route path="/games/tetris" element={<Tetris />} />
-          <Route path="/games/crossword" element={<Crossword />} />
-          <Route path="/games/jigsaw" element={<JigsawPuzzle />} />
-          <Route path="/games/tango" element={<Tango />} />
-          <Route path="/games/queens" element={<Queens />} />
-          <Route path="/games/crossclimb" element={<Crossclimb />} />
-          <Route path="/games/pinpoint" element={<Pinpoint />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/signin" element={<SignIn />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/games/tic-tac-toe" element={<TicTacToe />} />
+            <Route path="/games/snake" element={<Snake />} />
+            <Route path="/games/sudoku" element={<Sudoku />} />
+            <Route path="/games/tetris" element={<Tetris />} />
+            <Route path="/games/crossword" element={<Crossword />} />
+            <Route path="/games/jigsaw" element={<JigsawPuzzle />} />
+            <Route path="/games/tango" element={<Tango />} />
+            <Route path="/games/queens" element={<Queens />} />
+            <Route path="/games/crossclimb" element={<Crossclimb />} />
+            <Route path="/games/pinpoint" element={<Pinpoint />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
