@@ -20,6 +20,7 @@ import Tango from "./pages/Games/Tango";
 import Queens from "./pages/Games/Queens";
 import Crossclimb from "./pages/Games/Crossclimb";
 import Pinpoint from "./pages/Games/Pinpoint";
+import ComingSoon from "./pages/Games/ComingSoon";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +48,7 @@ const App = () => (
             <Route path="/games/queens" element={<Queens />} />
             <Route path="/games/crossclimb" element={<Crossclimb />} />
             <Route path="/games/pinpoint" element={<Pinpoint />} />
+            <Route path="/games/coming-soon/:gameName" element={<ComingSoon />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

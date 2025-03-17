@@ -128,6 +128,11 @@ const Snake = () => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (gameStatus !== "playing") return;
       
+      // Prevent default behavior for arrow keys to stop page scrolling
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(e.key)) {
+        e.preventDefault();
+      }
+      
       switch (e.key) {
         case "ArrowUp":
           handleDirectionChange("UP");
@@ -158,6 +163,9 @@ const Snake = () => {
     const handleTouchStart = (e: TouchEvent) => {
       if (gameStatus !== "playing") return;
       
+      // Prevent default behavior to stop page scrolling
+      e.preventDefault();
+      
       const touch = e.touches[0];
       touchStartRef.current = { 
         x: touch.clientX, 
@@ -167,6 +175,9 @@ const Snake = () => {
     
     const handleTouchEnd = (e: TouchEvent) => {
       if (gameStatus !== "playing" || !touchStartRef.current) return;
+      
+      // Prevent default behavior to stop page scrolling
+      e.preventDefault();
       
       const touch = e.changedTouches[0];
       const endX = touch.clientX;
@@ -195,16 +206,25 @@ const Snake = () => {
       touchStartRef.current = null;
     };
     
+    const handleTouchMove = (e: TouchEvent) => {
+      // Prevent default behavior to stop page scrolling when playing the game
+      if (gameStatus === "playing") {
+        e.preventDefault();
+      }
+    };
+    
     const canvas = canvasRef.current;
     if (canvas && isMobile) {
-      canvas.addEventListener("touchstart", handleTouchStart);
-      canvas.addEventListener("touchend", handleTouchEnd);
+      canvas.addEventListener("touchstart", handleTouchStart, { passive: false });
+      canvas.addEventListener("touchend", handleTouchEnd, { passive: false });
+      canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
     }
     
     return () => {
       if (canvas) {
         canvas.removeEventListener("touchstart", handleTouchStart);
         canvas.removeEventListener("touchend", handleTouchEnd);
+        canvas.removeEventListener("touchmove", handleTouchMove);
       }
     };
   }, [gameStatus, isMobile]);

@@ -6,7 +6,7 @@ const Footer = () => {
     <footer className="mt-auto py-8 px-6 border-t border-border">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="text-sm text-muted-foreground">
-          © {currentYear} GameHub. All rights reserved.
+          © {currentYear} Shateer Games. All rights reserved.
         </div>
         
         <div className="flex items-center gap-6">

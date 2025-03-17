@@ -11,7 +11,7 @@ const Navbar = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
       <div className="container mx-auto px-6 h-16 flex items-center justify-between">
         <Link to="/" className="text-xl font-bold">
-          GameHub
+          Shateer Games
         </Link>
 
         <div className="hidden md:flex items-center space-x-6">
