@@ -19,7 +19,7 @@ const Board = ({
 }: BoardProps) => {
   return (
     <div className="flex justify-center mb-8">
-      <div className="bg-white rounded-lg shadow-sm border border-border p-4">
+      <div className="bg-white rounded-lg shadow-sm border border-[#ECDBBA] p-4">
         <div
           className="grid gap-1"
           style={{

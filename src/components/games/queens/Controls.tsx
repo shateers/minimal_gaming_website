@@ -40,19 +40,19 @@ const Controls = ({
     <>
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
         <div className="flex gap-4">
-          <div className="bg-secondary/30 px-4 py-2 rounded-lg">
+          <div className="bg-[#ECDBBA] px-4 py-2 rounded-lg">
             <div className="text-lg font-medium">
               Time: {formatTime(timer)}
             </div>
           </div>
 
-          <div className="bg-secondary/30 px-4 py-2 rounded-lg">
+          <div className="bg-[#ECDBBA] px-4 py-2 rounded-lg">
             <div className="text-lg font-medium">
               Queens: {queensPlaced}/{boardSize}
             </div>
           </div>
 
-          <div className="bg-secondary/30 px-4 py-2 rounded-lg">
+          <div className="bg-[#ECDBBA] px-4 py-2 rounded-lg">
             <div className="text-lg font-medium">Moves: {moves}</div>
           </div>
         </div>
@@ -83,7 +83,7 @@ const Controls = ({
       <div className="flex justify-center gap-4">
         <button
           onClick={onReset}
-          className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium shadow-sm hover:bg-primary/90 transition-colors"
+          className="px-6 py-3 bg-[#C84B31] text-white rounded-lg font-medium shadow-sm hover:bg-[#C84B31]/90 transition-colors"
         >
           {gameCompleted ? "New Game" : "Reset Game"}
         </button>
@@ -91,7 +91,7 @@ const Controls = ({
         <button
           onClick={onHint}
           disabled={gameCompleted}
-          className="px-6 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium shadow-sm hover:bg-secondary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium shadow-sm hover:bg-[#ECDBBA] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Hint
         </button>
