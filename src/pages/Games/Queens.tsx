@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../../components/layout/Navbar";
@@ -6,7 +5,7 @@ import Footer from "../../components/layout/Footer";
 import Board from "../../components/games/queens/Board";
 import Controls from "../../components/games/queens/Controls";
 import Instructions from "../../components/games/queens/Instructions";
-import useQueensGame from "../../hooks/games/useQueensGame";
+import useQueensGame from "../../hooks/games/queens/useQueensGame";
 
 const Queens = () => {
   const {

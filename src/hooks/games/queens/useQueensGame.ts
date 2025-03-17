@@ -1,21 +1,14 @@
 
 import { useState, useEffect, useCallback } from "react";
-
-type CellValue = boolean;
-type Board = CellValue[][];
-type Difficulty = "easy" | "medium" | "hard";
-
-const DIFFICULTIES = {
-  easy: { size: 4 },
-  medium: { size: 6 },
-  hard: { size: 8 },
-};
+import { Board, Position, Difficulty, QueensGameState } from "./types";
+import { DIFFICULTIES } from "./constants";
+import { canPlaceQueen, findConflicts, createEmptyBoard } from "./boardUtils";
 
 const useQueensGame = () => {
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [board, setBoard] = useState<Board>([]);
-  const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null);
-  const [conflicts, setConflicts] = useState<[number, number][]>([]);
+  const [selectedCell, setSelectedCell] = useState<Position | null>(null);
+  const [conflicts, setConflicts] = useState<Position[]>([]);
   const [gameCompleted, setGameCompleted] = useState(false);
   const [timer, setTimer] = useState(0);
   const [timerInterval, setTimerInterval] = useState<number | null>(null);
@@ -25,9 +18,7 @@ const useQueensGame = () => {
   // Initialize board based on difficulty
   const initializeBoard = useCallback(() => {
     const size = DIFFICULTIES[difficulty].size;
-    const newBoard: Board = Array(size)
-      .fill(null)
-      .map(() => Array(size).fill(false));
+    const newBoard = createEmptyBoard(size);
 
     setBoard(newBoard);
     setSelectedCell(null);
@@ -54,73 +45,25 @@ const useQueensGame = () => {
     };
   }, [difficulty, initializeBoard, timerInterval]);
 
-  // Check if a queen can be placed at the given position
-  const canPlaceQueen = (
-    row: number,
-    col: number,
-    boardState: Board = board
-  ): boolean => {
-    const size = boardState.length;
-
-    // Check row
-    for (let j = 0; j < size; j++) {
-      if (j !== col && boardState[row][j]) {
-        return false;
-      }
-    }
-
-    // Check column
-    for (let i = 0; i < size; i++) {
-      if (i !== row && boardState[i][col]) {
-        return false;
-      }
-    }
-
-    // Check diagonals
-    // Up-left
-    for (let i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--) {
-      if (boardState[i][j]) return false;
-    }
-
-    // Up-right
-    for (let i = row - 1, j = col + 1; i >= 0 && j < size; i++, j++) {
-      if (boardState[i][j]) return false;
-    }
-
-    // Down-left
-    for (let i = row + 1, j = col - 1; i < size && j >= 0; i++, j--) {
-      if (boardState[i][j]) return false;
-    }
-
-    // Down-right
-    for (let i = row + 1, j = col + 1; i < size && j < size; i++, j++) {
-      if (boardState[i][j]) return false;
-    }
-
-    return true;
-  };
-
-  // Find all conflicts on the board
-  const findConflicts = useCallback(() => {
-    const size = board.length;
-    const newConflicts: [number, number][] = [];
-
-    for (let i = 0; i < size; i++) {
-      for (let j = 0; j < size; j++) {
-        if (board[i][j]) {
-          const tempBoard = JSON.parse(JSON.stringify(board));
-          tempBoard[i][j] = false;
-
-          if (!canPlaceQueen(i, j, tempBoard)) {
-            newConflicts.push([i, j]);
-          }
-        }
-      }
-    }
-
+  // Update conflicts and check game state
+  const updateConflictsAndCheckGame = useCallback((boardState: Board) => {
+    const newConflicts = findConflicts(boardState);
     setConflicts(newConflicts);
-    return newConflicts.length === 0;
-  }, [board]);
+    
+    // Check for game completion
+    const noConflicts = newConflicts.length === 0;
+    const allQueensPlaced = boardState.flat().filter(Boolean).length === boardState.length;
+    
+    if (noConflicts && allQueensPlaced) {
+      setGameCompleted(true);
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        setTimerInterval(null);
+      }
+    }
+    
+    return noConflicts;
+  }, [timerInterval]);
 
   // Handle cell click
   const handleCellClick = useCallback(
@@ -132,8 +75,8 @@ const useQueensGame = () => {
 
       // If we're placing a queen, check if it's valid
       if (!current && !canPlaceQueen(row, col, newBoard)) {
-        // Highlight conflicts and return
-        findConflicts();
+        // Highlight conflicts
+        updateConflictsAndCheckGame(board);
         return;
       }
 
@@ -147,19 +90,10 @@ const useQueensGame = () => {
       setSelectedCell([row, col]);
       setMoves((prev) => prev + 1);
 
-      // Check for conflicts
-      const noConflicts = findConflicts();
-
-      // Check for game completion
-      if (noConflicts && newBoard.flat().filter(Boolean).length === newBoard.length) {
-        setGameCompleted(true);
-        if (timerInterval) {
-          clearInterval(timerInterval);
-          setTimerInterval(null);
-        }
-      }
+      // Check for conflicts and game completion
+      updateConflictsAndCheckGame(newBoard);
     },
-    [board, findConflicts, gameCompleted, timerInterval]
+    [board, updateConflictsAndCheckGame, gameCompleted]
   );
 
   // Get a hint
@@ -169,14 +103,14 @@ const useQueensGame = () => {
     // Try to place a queen in each empty cell
     for (let i = 0; i < size; i++) {
       for (let j = 0; j < size; j++) {
-        if (!board[i][j] && canPlaceQueen(i, j)) {
+        if (!board[i][j] && canPlaceQueen(i, j, board)) {
           const newBoard = [...board.map((row) => [...row])];
           newBoard[i][j] = true;
           setBoard(newBoard);
           setSelectedCell([i, j]);
           setMoves((prev) => prev + 1);
           setQueensPlaced((prev) => prev + 1);
-          findConflicts();
+          updateConflictsAndCheckGame(newBoard);
           return;
         }
       }
@@ -191,9 +125,9 @@ const useQueensGame = () => {
       setSelectedCell([row, col]);
       setMoves((prev) => prev + 1);
       setQueensPlaced((prev) => prev - 1);
-      findConflicts();
+      updateConflictsAndCheckGame(newBoard);
     }
-  }, [board, conflicts, findConflicts]);
+  }, [board, conflicts, updateConflictsAndCheckGame]);
 
   const handleDifficultyChange = (newDifficulty: Difficulty) => {
     setDifficulty(newDifficulty);
