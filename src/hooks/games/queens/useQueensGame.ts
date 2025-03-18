@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Board, Position, Difficulty, QueensGameState } from "./types";
 import { DIFFICULTIES } from "./constants";
 import { canPlaceQueen, findConflicts, createEmptyBoard } from "./boardUtils";
@@ -11,9 +11,10 @@ const useQueensGame = () => {
   const [conflicts, setConflicts] = useState<Position[]>([]);
   const [gameCompleted, setGameCompleted] = useState(false);
   const [timer, setTimer] = useState(0);
-  const [timerInterval, setTimerInterval] = useState<number | null>(null);
+  const timerIntervalRef = useRef<number | null>(null);
   const [moves, setMoves] = useState(0);
   const [queensPlaced, setQueensPlaced] = useState(0);
+  const isInitializedRef = useRef(false);
 
   // Initialize board based on difficulty
   const initializeBoard = useCallback(() => {
@@ -29,21 +30,24 @@ const useQueensGame = () => {
 
     // Reset and start timer
     setTimer(0);
-    if (timerInterval) clearInterval(timerInterval);
+    if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
     const interval = window.setInterval(() => {
       setTimer((prev) => prev + 1);
     }, 1000);
-    setTimerInterval(interval);
-  }, [difficulty, timerInterval]);
+    timerIntervalRef.current = interval;
+  }, [difficulty]);
 
   // Initialize board on difficulty change
   useEffect(() => {
-    initializeBoard();
+    if (!isInitializedRef.current) {
+      isInitializedRef.current = true;
+      initializeBoard();
+    }
 
     return () => {
-      if (timerInterval) clearInterval(timerInterval);
+      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
     };
-  }, [difficulty, initializeBoard, timerInterval]);
+  }, [difficulty, initializeBoard]);
 
   // Update conflicts and check game state
   const updateConflictsAndCheckGame = useCallback((boardState: Board) => {
@@ -56,14 +60,14 @@ const useQueensGame = () => {
     
     if (noConflicts && allQueensPlaced) {
       setGameCompleted(true);
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        setTimerInterval(null);
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
       }
     }
     
     return noConflicts;
-  }, [timerInterval]);
+  }, []);
 
   // Handle cell click
   const handleCellClick = useCallback(
@@ -130,7 +134,10 @@ const useQueensGame = () => {
   }, [board, conflicts, updateConflictsAndCheckGame]);
 
   const handleDifficultyChange = (newDifficulty: Difficulty) => {
-    setDifficulty(newDifficulty);
+    if (newDifficulty !== difficulty) {
+      setDifficulty(newDifficulty);
+      isInitializedRef.current = false;
+    }
   };
 
   return {

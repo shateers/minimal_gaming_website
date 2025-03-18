@@ -1,4 +1,3 @@
-
 export interface Game {
   title: string;
   description: string;
@@ -58,7 +57,7 @@ export const gameCategories: GameCategory[] = [
       },
       {
         title: "Queens",
-        description: "Place crowns on a grid, ensuring no two crowns share the same row, column, or designated region.",
+        description: "Place queens on a grid, ensuring no two queens can attack each other.",
         href: "/games/queens",
       },
       {
@@ -70,6 +69,12 @@ export const gameCategories: GameCategory[] = [
         title: "Pinpoint",
         description: "Guess the category based on provided clues, testing your ability to identify connections between words.",
         href: "/games/pinpoint",
+      },
+      {
+        title: "2048",
+        description: "Slide and merge tiles to reach the elusive 2048 tile in this addictive mathematical puzzle game.",
+        href: "/games/2048",
+        imageSrc: "/lovable-uploads/39d7fb8e-e6ac-44ad-be50-f34ca8ec1217.png"
       },
     ]
   },
