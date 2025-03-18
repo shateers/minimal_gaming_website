@@ -28,7 +28,7 @@ interface DinoGameProps {
 }
 
 const DinoGame: React.FC<DinoGameProps> = ({ onScoreUpdate, onGameOver }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [gameLoaded, setGameLoaded] = useState(false);
   const gameInstanceRef = useRef<Runner | null>(null);
 
@@ -68,21 +68,44 @@ const DinoGame: React.FC<DinoGameProps> = ({ onScoreUpdate, onGameOver }) => {
   }, []);
 
   useEffect(() => {
-    if (gameLoaded && canvasRef.current && window.Runner) {
+    if (gameLoaded && containerRef.current && window.Runner) {
       try {
-        // Initialize the game
-        const container = canvasRef.current.parentElement;
-        if (container) {
-          // Create the game container as expected by the Runner
-          const gameContainer = document.createElement("div");
-          gameContainer.className = "runner-container";
-          
-          const canvas = document.createElement("canvas");
-          canvas.className = "runner-canvas";
-          gameContainer.appendChild(canvas);
-          container.appendChild(gameContainer);
-
-          // Start the game with the correct container element as a string selector
+        // First, add the offline resources needed by the game
+        const offlineContainer = document.createElement("div");
+        offlineContainer.id = "offline-resources";
+        
+        // Add the sprite images that the game needs
+        const img1x = document.createElement("img");
+        img1x.id = "offline-resources-1x";
+        img1x.src = "/dino-run/sprite1x.png";
+        
+        const img2x = document.createElement("img");
+        img2x.id = "offline-resources-2x";
+        img2x.src = "/dino-run/sprite2x.png";
+        
+        offlineContainer.appendChild(img1x);
+        offlineContainer.appendChild(img2x);
+        
+        // Add the container to the DOM
+        document.body.appendChild(offlineContainer);
+        
+        // Create the game container
+        const gameContainer = document.createElement("div");
+        gameContainer.className = "runner-container";
+        
+        const canvas = document.createElement("canvas");
+        canvas.className = "runner-canvas";
+        gameContainer.appendChild(canvas);
+        
+        // Clear previous contents and add the new elements
+        if (containerRef.current) {
+          containerRef.current.innerHTML = '';
+          containerRef.current.appendChild(gameContainer);
+        }
+        
+        // Wait for a moment to ensure images are loaded
+        setTimeout(() => {
+          // Initialize the game
           const runner = new window.Runner('.runner-container');
           gameInstanceRef.current = runner;
 
@@ -108,28 +131,24 @@ const DinoGame: React.FC<DinoGameProps> = ({ onScoreUpdate, onGameOver }) => {
 
           // Start the game
           runner.play();
-        }
+        }, 100);
       } catch (error) {
         console.error("Error initializing the game:", error);
       }
     }
 
     return () => {
-      // Clean up DOM elements created by the game
-      const container = canvasRef.current?.parentElement;
-      if (container) {
-        const gameContainer = container.querySelector('.runner-container');
-        if (gameContainer) {
-          container.removeChild(gameContainer);
-        }
+      // Clean up
+      const offlineResources = document.getElementById('offline-resources');
+      if (offlineResources) {
+        document.body.removeChild(offlineResources);
       }
     };
   }, [gameLoaded, onScoreUpdate, onGameOver]);
 
   return (
     <div className="flex justify-center mb-8">
-      <div className="relative h-[300px] w-full max-w-[600px] bg-white">
-        <canvas ref={canvasRef} className="hidden"></canvas>
+      <div ref={containerRef} className="relative h-[300px] w-full max-w-[600px] bg-white">
         {!gameLoaded && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
