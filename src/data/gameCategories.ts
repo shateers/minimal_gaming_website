@@ -76,6 +76,11 @@ export const gameCategories: GameCategory[] = [
         href: "/games/2048",
         imageSrc: "/lovable-uploads/39d7fb8e-e6ac-44ad-be50-f34ca8ec1217.png"
       },
+      {
+        title: "Dino Run",
+        description: "Help the dinosaur jump over cacti and avoid obstacles in this popular Chrome offline game.",
+        href: "/games/dino-run",
+      },
     ]
   },
   {
@@ -105,11 +110,6 @@ export const gameCategories: GameCategory[] = [
         title: "Pong",
         description: "A classic table tennis simulation where players control paddles to hit a ball back and forth.",
         href: "/games/coming-soon/pong",
-      },
-      {
-        title: "Dino Run",
-        description: "Chrome's offline dinosaur jumping game.",
-        href: "/games/coming-soon/dino-run",
       },
     ]
   },

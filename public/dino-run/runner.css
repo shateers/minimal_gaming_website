@@ -1,0 +1,43 @@
+
+/* Copyright 2013 The Chromium Authors
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file. */
+
+.runner-container {
+  height: 150px;
+  max-width: 600px;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.runner-canvas {
+  height: 150px;
+  max-width: 600px;
+  width: 100%;
+}
+
+.controller {
+  background: rgba(247,247,247, .1);
+  height: 100vh;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100vw;
+  z-index: 1;
+}
+
+#offline-resources {
+  display: none;
+}
+
+/* Offline mode */
+.offline .runner-container {
+  filter: blur(0px);
+  opacity: 1;
+}
+
+.offline .runner-canvas {
+  filter: blur(0px);
+  opacity: 1;
+}
