@@ -9,22 +9,24 @@
   overflow: hidden;
   position: relative;
   width: 100%;
+  z-index: 1;
 }
 
 .runner-canvas {
   height: 150px;
   max-width: 600px;
   width: 100%;
+  z-index: 1;
 }
 
 .controller {
-  background: rgba(247,247,247, .1);
+  background: rgba(247, 247, 247, 0.1);
   height: 100vh;
   left: 0;
   position: absolute;
   top: 0;
   width: 100vw;
-  z-index: 1;
+  z-index: 100;
 }
 
 #offline-resources {
@@ -40,4 +42,18 @@
 .offline .runner-canvas {
   filter: blur(0px);
   opacity: 1;
+}
+
+/* High contrast mode */
+@media (forced-colors: active) {
+  .runner-canvas {
+    forced-color-adjust: none;
+  }
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .runner-container {
+    background-color: var(--google-gray-900);
+  }
 }

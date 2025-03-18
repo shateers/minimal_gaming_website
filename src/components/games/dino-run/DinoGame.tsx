@@ -1,6 +1,27 @@
 
 import React, { useEffect, useRef, useState } from "react";
 
+// Add interface for the Runner object
+interface Runner {
+  play: () => void;
+  stop: () => void;
+  gameOver: () => void;
+  updateScore: (score: number) => void;
+  distanceRan: number;
+  distanceMeter: {
+    config: {
+      COEFFICIENT: number;
+    };
+  };
+}
+
+// Extend Window interface to include Runner
+declare global {
+  interface Window {
+    Runner: any;
+  }
+}
+
 interface DinoGameProps {
   onScoreUpdate: (score: number) => void;
   onGameOver: () => void;
@@ -9,7 +30,7 @@ interface DinoGameProps {
 const DinoGame: React.FC<DinoGameProps> = ({ onScoreUpdate, onGameOver }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [gameLoaded, setGameLoaded] = useState(false);
-  const gameInstanceRef = useRef<any>(null);
+  const gameInstanceRef = useRef<Runner | null>(null);
 
   useEffect(() => {
     // Load the Runner script
@@ -61,8 +82,8 @@ const DinoGame: React.FC<DinoGameProps> = ({ onScoreUpdate, onGameOver }) => {
           gameContainer.appendChild(canvas);
           container.appendChild(gameContainer);
 
-          // Start the game
-          const runner = new window.Runner(gameContainer);
+          // Start the game with the correct container element as a string selector
+          const runner = new window.Runner('.runner-container');
           gameInstanceRef.current = runner;
 
           // Set up score update callback
