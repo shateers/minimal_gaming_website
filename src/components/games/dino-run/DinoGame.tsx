@@ -77,11 +77,11 @@ const DinoGame: React.FC<DinoGameProps> = ({ onScoreUpdate, onGameOver }) => {
         // Add the sprite images that the game needs
         const img1x = document.createElement("img");
         img1x.id = "offline-resources-1x";
-        img1x.src = "/dino-run/sprite1x.png";
+        img1x.src = "/lovable-uploads/d8df97c9-1007-4045-ae7d-9ed7d00fed59.png";
         
         const img2x = document.createElement("img");
         img2x.id = "offline-resources-2x";
-        img2x.src = "/dino-run/sprite2x.png";
+        img2x.src = "/lovable-uploads/893e63c1-ec8b-4362-acde-6952cf6714c2.png";
         
         offlineContainer.appendChild(img1x);
         offlineContainer.appendChild(img2x);
