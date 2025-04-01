@@ -81,6 +81,16 @@ export const gameCategories: GameCategory[] = [
         description: "Help the dinosaur jump over cacti and avoid obstacles in this popular Chrome offline game.",
         href: "/games/dino-run",
       },
+      {
+        title: "Flappy Bird",
+        description: "Navigate a bird through gaps between pipes by tapping the screen to keep it airborne.",
+        href: "/games/flappy-bird",
+      },
+      {
+        title: "Minesweeper",
+        description: "A logic-based game where players uncover squares on a grid, avoiding hidden mines.",
+        href: "/games/minesweeper",
+      },
     ]
   },
   {
@@ -90,16 +100,6 @@ export const gameCategories: GameCategory[] = [
         title: "2048",
         description: "A sliding tile puzzle game where players combine numbers to reach the 2048 tile.",
         href: "/games/coming-soon/2048",
-      },
-      {
-        title: "Minesweeper",
-        description: "A logic-based game where players uncover squares on a grid, avoiding hidden mines.",
-        href: "/games/minesweeper",
-      },
-      {
-        title: "Flappy Bird",
-        description: "Navigate a bird through gaps between pipes by tapping the screen to keep it airborne.",
-        href: "/games/coming-soon/flappy-bird",
       },
       {
         title: "Breakout",
