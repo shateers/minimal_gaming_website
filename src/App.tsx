@@ -22,6 +22,7 @@ import Crossclimb from "./pages/Games/Crossclimb";
 import Pinpoint from "./pages/Games/Pinpoint";
 import Game2048 from "./pages/Games/Game2048";
 import DinoRun from "./pages/Games/DinoRun";
+import Minesweeper from "./pages/Games/Minesweeper";
 import ComingSoon from "./pages/Games/ComingSoon";
 import NotFound from "./pages/NotFound";
 
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="/games/pinpoint" element={<Pinpoint />} />
             <Route path="/games/2048" element={<Game2048 />} />
             <Route path="/games/dino-run" element={<DinoRun />} />
+            <Route path="/games/minesweeper" element={<Minesweeper />} />
             <Route path="/games/coming-soon/:gameName" element={<ComingSoon />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

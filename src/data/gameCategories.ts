@@ -94,7 +94,7 @@ export const gameCategories: GameCategory[] = [
       {
         title: "Minesweeper",
         description: "A logic-based game where players uncover squares on a grid, avoiding hidden mines.",
-        href: "/games/coming-soon/minesweeper",
+        href: "/games/minesweeper",
       },
       {
         title: "Flappy Bird",
