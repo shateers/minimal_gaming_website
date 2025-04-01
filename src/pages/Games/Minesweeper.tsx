@@ -182,7 +182,7 @@ const Minesweeper = () => {
   // Reveal cell and its neighbors if it has no adjacent mines
   const revealCell = (y: number, x: number, currentBoard: CellValue[][]) => {
     const { width, height } = DIFFICULTY_SETTINGS[difficulty];
-    const newBoard = JSON.parse(JSON.stringify(currentBoard));
+    let newBoard = JSON.parse(JSON.stringify(currentBoard));
     
     // If already revealed or flagged, do nothing
     if (newBoard[y][x].isRevealed || newBoard[y][x].isFlagged) {
