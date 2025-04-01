@@ -54,6 +54,6 @@
 /* Dark Mode */
 @media (prefers-color-scheme: dark) {
   .runner-container {
-    background-color: var(--google-gray-900);
+    background-color: #f7f7f7;
   }
 }

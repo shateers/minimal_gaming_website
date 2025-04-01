@@ -32,14 +32,16 @@ const HomeLayout = () => {
   const hasResults = filteredCategories.length > 0;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#f8f9fa]">
       <Navbar />
       
-      <main className="flex-grow pt-24 px-6 md:px-10">
-        <section className="max-w-7xl mx-auto pb-20">
+      <main className="flex-grow pt-20 px-4 md:px-8">
+        <section className="max-w-7xl mx-auto pb-12">
           <Hero />
           
-          <SearchBar onSearch={handleSearch} />
+          <div className="mb-12 max-w-3xl mx-auto">
+            <SearchBar onSearch={handleSearch} />
+          </div>
 
           {hasResults ? (
             filteredCategories.map((category, categoryIndex) => (

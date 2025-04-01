@@ -52,12 +52,12 @@ const GameCard = ({ title, description, href, imageSrc, index }: GameCardProps) 
         onMouseLeave={() => setIsHovered(false)}
       >
         <div
-          className={`relative rounded-2xl overflow-hidden border border-border bg-white shadow-sm
-                     transition-all duration-500 ease-out p-6 h-full
-                     ${isHovered ? "shadow-md scale-[1.02] border-[#C84B31]/30" : ""}`}
+          className={`relative rounded-xl overflow-hidden border border-gray-200 bg-white shadow-sm
+                     transition-all duration-300 h-full
+                     ${isHovered ? "shadow-md translate-y-[-5px]" : ""}`}
         >
-          <div className="flex flex-col h-full">
-            <div className="mb-4 bg-secondary/50 rounded-xl h-40 overflow-hidden">
+          <div className="flex flex-col h-full p-5">
+            <div className="mb-4 bg-gray-100 rounded-lg h-40 overflow-hidden flex items-center justify-center">
               {imageSrc ? (
                 <img 
                   src={imageSrc} 
@@ -65,18 +65,18 @@ const GameCard = ({ title, description, href, imageSrc, index }: GameCardProps) 
                   className="w-full h-full object-contain transition-transform duration-700 ease-out"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                  {title}
+                <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-gradient-to-br from-gray-100 to-gray-200">
+                  <span className="text-xl font-semibold text-gray-500">{title.charAt(0)}</span>
                 </div>
               )}
             </div>
             
-            <h3 className="text-xl font-semibold mb-2">{title}</h3>
-            <p className="text-muted-foreground text-sm mb-4 flex-grow">{description}</p>
+            <h3 className="text-xl font-semibold mb-2 text-gray-800">{title}</h3>
+            <p className="text-gray-600 text-sm mb-4 flex-grow">{description}</p>
             
             <div className={`text-sm font-medium transition-all duration-300 
-                          relative inline-flex items-center gap-1
-                          ${isHovered ? "translate-x-1 text-[#C84B31] font-semibold" : ""}`}>
+                          inline-flex items-center gap-1 mt-auto
+                          ${isHovered ? "text-blue-600" : "text-blue-500"}`}>
               Play now
               <span className="transition-transform duration-300 transform" style={{ 
                 marginLeft: '4px',

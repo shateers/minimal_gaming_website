@@ -5,7 +5,7 @@ const Hero = () => {
   return (
     <div className="text-center mb-16">
       <FadeIn>
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 bg-gradient-to-r from-[#3f51b5] to-[#00bcd4] bg-clip-text text-transparent">
           Minimalist Gaming Experience
         </h1>
       </FadeIn>

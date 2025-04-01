@@ -19,12 +19,12 @@ const GameCategory = ({ name, games, categoryIndex }: GameCategoryProps) => {
   return (
     <div className="mb-16">
       <FadeIn delay={0.1 * categoryIndex}>
-        <h2 className="text-2xl font-bold mb-8 pb-2 border-b border-border">
+        <h2 className="text-2xl font-bold mb-8 pb-2 border-b border-gray-200 text-gray-800">
           {name}
         </h2>
       </FadeIn>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {games.map((game, index) => (
           <GameCard
             key={game.title}
