@@ -8,6 +8,9 @@ const Instructions = () => {
         <li>Navigate through the pipes without touching them.</li>
         <li>Each pipe you successfully pass gives you one point.</li>
         <li>If you hit a pipe or the ground, the game is over.</li>
+        <li>Try to maintain a steady rhythm of jumps to control your height.</li>
+        <li>The bird will naturally fall due to gravity, so time your jumps carefully.</li>
+        <li>Look ahead to plan your trajectory through upcoming pipes.</li>
         <li>Try to beat your high score!</li>
       </ul>
     </div>
