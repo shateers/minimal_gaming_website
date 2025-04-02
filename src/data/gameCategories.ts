@@ -80,16 +80,19 @@ export const gameCategories: GameCategory[] = [
         title: "Dino Run",
         description: "Help the dinosaur jump over cacti and avoid obstacles in this popular Chrome offline game.",
         href: "/games/dino-run",
+        imageSrc: "/lovable-uploads/893e63c1-ec8b-4362-acde-6952cf6714c2.png"
       },
       {
         title: "Flappy Bird",
         description: "Navigate a bird through gaps between pipes by tapping the screen to keep it airborne.",
         href: "/games/flappy-bird",
+        imageSrc: "/lovable-uploads/9c2e48ad-a8fd-4c84-bf60-a9fe9449d30d.png"
       },
       {
         title: "Minesweeper",
         description: "A logic-based game where players uncover squares on a grid, avoiding hidden mines.",
         href: "/games/minesweeper",
+        imageSrc: "/lovable-uploads/9c9720ef-62b5-49af-8948-9b687ae20394.png"
       },
     ]
   },

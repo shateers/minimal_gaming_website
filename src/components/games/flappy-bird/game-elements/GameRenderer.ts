@@ -63,4 +63,27 @@ export class GameRenderer {
       score: score
     });
   }
+  
+  // New method to apply visual effects
+  applyVisualEffects() {
+    // Optional: Add visual effects like subtle gradient, particle effects, etc.
+    // This is just a placeholder for future enhancements
+    this.ctx.save();
+    // Example: Add a subtle vignette effect
+    const gradient = this.ctx.createRadialGradient(
+      this.canvasWidth / 2, 
+      this.canvasHeight / 2, 
+      this.canvasHeight * 0.3, 
+      this.canvasWidth / 2, 
+      this.canvasHeight / 2, 
+      this.canvasHeight
+    );
+    gradient.addColorStop(0, 'rgba(0,0,0,0)');
+    gradient.addColorStop(1, 'rgba(0,0,0,0.3)');
+    
+    this.ctx.fillStyle = gradient;
+    this.ctx.globalCompositeOperation = 'multiply';
+    this.ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
+    this.ctx.restore();
+  }
 }
