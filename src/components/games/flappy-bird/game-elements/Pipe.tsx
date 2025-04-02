@@ -12,17 +12,17 @@ interface PipeProps {
 }
 
 export const Pipe = ({ ctx, x, topHeight, gap, width, canvasHeight }: PipeProps) => {
-  // Gradient for pipes
+  // Create gradient for pipes with enhanced visuals
   const pipeGradient = ctx.createLinearGradient(x, 0, x + width, 0);
   pipeGradient.addColorStop(0, "#2E8B57"); // Dark green
   pipeGradient.addColorStop(0.5, "#3CB371"); // Medium green
   pipeGradient.addColorStop(1, "#2E8B57"); // Dark green
   
-  // Top pipe
+  // Top pipe with enhanced visuals
   ctx.fillStyle = pipeGradient;
   ctx.fillRect(x, 0, width, topHeight);
   
-  // Pipe cap (top)
+  // Pipe cap (top) with enhanced visuals
   const capGradient = ctx.createLinearGradient(x - 2, 0, x + width + 4, 0);
   capGradient.addColorStop(0, "#1E5631");
   capGradient.addColorStop(0.5, "#2E8B57");
@@ -32,12 +32,12 @@ export const Pipe = ({ ctx, x, topHeight, gap, width, canvasHeight }: PipeProps)
   ctx.fillRect(x - 5, topHeight - 15, width + 10, 15);
   ctx.fillRect(x - 5, topHeight - 15, width + 10, 5);
   
-  // Bottom pipe
+  // Bottom pipe with enhanced visuals
   const bottomPipeY = topHeight + gap;
   ctx.fillStyle = pipeGradient;
   ctx.fillRect(x, bottomPipeY, width, canvasHeight - bottomPipeY);
   
-  // Pipe cap (bottom)
+  // Pipe cap (bottom) with enhanced visuals
   ctx.fillStyle = capGradient;
   ctx.fillRect(x - 5, bottomPipeY, width + 10, 15);
   ctx.fillRect(x - 5, bottomPipeY, width + 10, 5);

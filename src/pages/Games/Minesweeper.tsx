@@ -72,8 +72,8 @@ const Minesweeper = () => {
       const x = Math.floor(Math.random() * width);
       const y = Math.floor(Math.random() * height);
       
-      // Don't place a mine on the first clicked cell or where a mine already exists
-      if ((y === firstClickY && x === firstClickX) || newBoard[y][x].isMine) {
+      // Don't place a mine on the first clicked cell or adjacent cells
+      if ((Math.abs(y - firstClickY) <= 1 && Math.abs(x - firstClickX) <= 1) || newBoard[y][x].isMine) {
         continue;
       }
       
