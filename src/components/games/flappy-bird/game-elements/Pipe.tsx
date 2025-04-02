@@ -1,5 +1,6 @@
 
 import { useRef, useEffect } from "react";
+import { BirdClass } from "./Bird";
 
 interface PipeProps {
   ctx: CanvasRenderingContext2D;

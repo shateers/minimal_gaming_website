@@ -37,9 +37,9 @@ export class GameEngine {
     this.onJump = onJump;
     this.onGameOver = onGameOver;
     
-    // Set canvas dimensions
-    this.canvas.width = 320;
-    this.canvas.height = 480;
+    // Set canvas dimensions to 800x500 as requested
+    this.canvas.width = 800;
+    this.canvas.height = 500;
     
     // Game variables
     this.bird = new BirdClass(this.canvas.width, this.canvas.height);
