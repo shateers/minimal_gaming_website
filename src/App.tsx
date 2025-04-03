@@ -24,6 +24,7 @@ import Game2048 from "./pages/Games/Game2048";
 import DinoRun from "./pages/Games/DinoRun";
 import Minesweeper from "./pages/Games/Minesweeper";
 import FlappyBird from "./pages/Games/FlappyBird";
+import Breakout from "./pages/Games/Breakout";
 import ComingSoon from "./pages/Games/ComingSoon";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/Legal/PrivacyPolicy";
@@ -59,6 +60,7 @@ const App = () => (
             <Route path="/games/dino-run" element={<DinoRun />} />
             <Route path="/games/minesweeper" element={<Minesweeper />} />
             <Route path="/games/flappy-bird" element={<FlappyBird />} />
+            <Route path="/games/breakout" element={<Breakout />} />
             <Route path="/games/coming-soon/:gameName" element={<ComingSoon />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />

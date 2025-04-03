@@ -98,6 +98,12 @@ export const gameCategories: GameCategory[] = [
         href: "/games/minesweeper",
         imageSrc: "/lovable-uploads/6d1943db-6468-46d6-b196-68b87821a681.png"
       },
+      {
+        title: "Breakout",
+        description: "Control a paddle to bounce a ball and break bricks at the top of the screen.",
+        href: "/games/breakout",
+        imageSrc: "/lovable-uploads/34b49450-5cad-4bd8-8f4e-e5b065bfdc78.png"
+      }
     ]
   },
   {
@@ -107,11 +113,6 @@ export const gameCategories: GameCategory[] = [
         title: "2048",
         description: "A sliding tile puzzle game where players combine numbers to reach the 2048 tile.",
         href: "/games/coming-soon/2048",
-      },
-      {
-        title: "Breakout",
-        description: "Control a paddle to bounce a ball and break bricks at the top of the screen.",
-        href: "/games/coming-soon/breakout",
       },
       {
         title: "Pong",
