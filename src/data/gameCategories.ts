@@ -1,4 +1,3 @@
-
 export interface Game {
   title: string;
   description: string;
@@ -43,7 +42,7 @@ export const gameCategories: GameCategory[] = [
         title: "Crossword",
         description: "Challenge your vocabulary and knowledge with crossword puzzles of varying difficulty.",
         href: "/games/crossword",
-        imageSrc: "/lovable-uploads/eb19358c-f3af-43d3-8356-f87b60389980.png"
+        imageSrc: "/lovable-uploads/067daa72-76de-46ae-9784-4b47edab41c4.png"
       },
       {
         title: "Jigsaw Puzzle",
@@ -55,25 +54,25 @@ export const gameCategories: GameCategory[] = [
         title: "Tango",
         description: "Fill a grid with two symbols, ensuring each row and column has an equal number without more than two identical symbols adjacent.",
         href: "/games/tango",
-        imageSrc: "/lovable-uploads/4457760b-7f30-42cc-8f8d-d00c5f5c1756.png"
+        imageSrc: "/lovable-uploads/d8df97c9-1007-4045-ae7d-9ed7d00fed59.png"
       },
       {
         title: "Queens",
         description: "Place queens on a grid, ensuring no two queens can attack each other.",
         href: "/games/queens",
-        imageSrc: "/lovable-uploads/34b49450-5cad-4bd8-8f4e-e5b065bfdc78.png"
+        imageSrc: "/lovable-uploads/d83c2233-cde9-49cf-b688-fefbd8e99648.png"
       },
       {
         title: "Crossclimb",
         description: "Unlock a series of trivia questions, progressing through levels as you answer correctly.",
         href: "/games/crossclimb",
-        imageSrc: "/lovable-uploads/a6559fd7-12ff-4091-a66e-c5c2b2743b0d.png"
+        imageSrc: "/lovable-uploads/9c9720ef-62b5-49af-8948-9b687ae20394.png"
       },
       {
         title: "Pinpoint",
         description: "Guess the category based on provided clues, testing your ability to identify connections between words.",
         href: "/games/pinpoint",
-        imageSrc: "/lovable-uploads/6d1943db-6468-46d6-b196-68b87821a681.png"
+        imageSrc: "/lovable-uploads/893e63c1-ec8b-4362-acde-6952cf6714c2.png"
       },
       {
         title: "2048",
@@ -85,19 +84,19 @@ export const gameCategories: GameCategory[] = [
         title: "Dino Run",
         description: "Help the dinosaur jump over cacti and avoid obstacles in this popular Chrome offline game.",
         href: "/games/dino-run",
-        imageSrc: "/lovable-uploads/41d143c8-cb3d-4fb4-b1af-b561e62e51f3.png"
+        imageSrc: "/lovable-uploads/9c2e48ad-a8fd-4c84-bf60-a9fe9449d30d.png"
       },
       {
         title: "Flappy Bird",
         description: "Navigate a bird through gaps between pipes by tapping the screen to keep it airborne.",
         href: "/games/flappy-bird",
-        imageSrc: "/lovable-uploads/af81437b-a7ce-4882-b397-2142163ce767.png"
+        imageSrc: "/lovable-uploads/9d7fb8e-e6ac-44ad-be50-f34ca8ec1217.png"
       },
       {
         title: "Minesweeper",
         description: "A logic-based game where players uncover squares on a grid, avoiding hidden mines.",
         href: "/games/minesweeper",
-        imageSrc: "/lovable-uploads/9c9720ef-62b5-49af-8948-9b687ae20394.png"
+        imageSrc: "/lovable-uploads/6d1943db-6468-46d6-b196-68b87821a681.png"
       },
     ]
   },
