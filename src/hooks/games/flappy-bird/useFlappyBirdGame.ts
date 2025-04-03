@@ -22,9 +22,11 @@ export const useFlappyBirdGame = () => {
 
   // Start the game
   const startGame = useCallback(() => {
-    setGameState("playing");
-    setScore(0);
-  }, []);
+    if (gameState !== "playing") {
+      setGameState("playing");
+      setScore(0);
+    }
+  }, [gameState]);
 
   // Reset the game
   const restartGame = useCallback(() => {

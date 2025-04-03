@@ -3,17 +3,21 @@ import { BirdClass } from "./Bird";
 import { PipeClass } from "./Pipe";
 import { CloudClass } from "./Cloud";
 import { Background } from "./Background";
-import { ScoreUI, WaitingScreen, GameOverScreen } from "./GameUI";
+import { GameUI } from "./GameUI";
 
 export class GameRenderer {
   ctx: CanvasRenderingContext2D;
   canvasWidth: number;
   canvasHeight: number;
+  background: Background;
+  gameUI: GameUI;
 
   constructor(ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) {
     this.ctx = ctx;
     this.canvasWidth = canvasWidth;
     this.canvasHeight = canvasHeight;
+    this.background = new Background(ctx, canvasWidth, canvasHeight);
+    this.gameUI = new GameUI(ctx, canvasWidth, canvasHeight);
   }
 
   clearCanvas() {
@@ -21,12 +25,7 @@ export class GameRenderer {
   }
 
   renderBackground(clouds: CloudClass[]) {
-    Background({
-      ctx: this.ctx,
-      canvasWidth: this.canvasWidth,
-      canvasHeight: this.canvasHeight,
-      clouds: clouds
-    });
+    this.background.render(clouds);
   }
 
   renderBird(bird: BirdClass) {
@@ -34,56 +33,22 @@ export class GameRenderer {
   }
 
   renderPipes(pipes: PipeClass[]) {
-    pipes.forEach(pipe => {
-      pipe.draw(this.ctx, this.canvasHeight);
-    });
+    pipes.forEach(pipe => pipe.draw(this.ctx, this.canvasHeight));
   }
 
   renderScore(score: number) {
-    ScoreUI({
-      ctx: this.ctx,
-      canvasWidth: this.canvasWidth,
-      score: score
-    });
+    this.gameUI.renderScore(score);
   }
 
   renderWaitingScreen() {
-    WaitingScreen({
-      ctx: this.ctx,
-      canvasWidth: this.canvasWidth,
-      canvasHeight: this.canvasHeight
-    });
+    this.gameUI.renderWaitingScreen();
+  }
+  
+  renderCountdown(count: number) {
+    this.gameUI.renderCountdown(count);
   }
 
   renderGameOverScreen(score: number) {
-    GameOverScreen({
-      ctx: this.ctx,
-      canvasWidth: this.canvasWidth,
-      canvasHeight: this.canvasHeight,
-      score: score
-    });
-  }
-  
-  // New method to apply visual effects
-  applyVisualEffects() {
-    // Optional: Add visual effects like subtle gradient, particle effects, etc.
-    // This is just a placeholder for future enhancements
-    this.ctx.save();
-    // Example: Add a subtle vignette effect
-    const gradient = this.ctx.createRadialGradient(
-      this.canvasWidth / 2, 
-      this.canvasHeight / 2, 
-      this.canvasHeight * 0.3, 
-      this.canvasWidth / 2, 
-      this.canvasHeight / 2, 
-      this.canvasHeight
-    );
-    gradient.addColorStop(0, 'rgba(0,0,0,0)');
-    gradient.addColorStop(1, 'rgba(0,0,0,0.3)');
-    
-    this.ctx.fillStyle = gradient;
-    this.ctx.globalCompositeOperation = 'multiply';
-    this.ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
-    this.ctx.restore();
+    this.gameUI.renderGameOverScreen(score);
   }
 }

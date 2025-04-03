@@ -15,6 +15,8 @@ export class GameStateManager {
   speed: number;
   canvasWidth: number;
   canvasHeight: number;
+  isCountingDown: boolean;
+  countdownValue: number;
 
   constructor(canvasWidth: number, canvasHeight: number, initialState: GameStateType, initialScore: number) {
     this.canvasWidth = canvasWidth;
@@ -34,6 +36,10 @@ export class GameStateManager {
     this.gravity = 0.25;
     this.speed = 2;
     this.frameCount = 0;
+    
+    // Countdown state
+    this.isCountingDown = false;
+    this.countdownValue = 3;
   }
 
   updateGameState(newState: GameStateType) {
@@ -97,10 +103,15 @@ export class GameStateManager {
       }
     }
     
+    // Check floor collision (moved from bird update to here for consistency)
+    if (this.bird.y + this.bird.height > this.canvasHeight - 90) {
+      return true;
+    }
+    
     return false;
   }
 
   updateBird(onGameOver: () => void) {
-    this.bird.update(this.gravity, this.canvasHeight, this.frameCount, onGameOver);
+    this.bird.update(this.gravity, this.canvasHeight);
   }
 }

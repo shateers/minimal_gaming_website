@@ -84,17 +84,14 @@ export class PipeClass {
   }
   
   checkCollision(bird: BirdClass) {
-    // Calculate actual bird hitbox (smaller than visual representation)
-    const birdHitboxX = bird.x - bird.width / 3;
-    const birdHitboxY = bird.y - bird.height / 3;
-    const birdHitboxWidth = bird.width / 1.5;
-    const birdHitboxHeight = bird.height / 1.5;
+    // Get bird's hitbox (smaller than visual representation)
+    const birdHitbox = bird.getHitbox();
     
     // Collision with top pipe
     if (
-      birdHitboxX + birdHitboxWidth > this.x &&
-      birdHitboxX < this.x + this.width &&
-      birdHitboxY < this.topHeight
+      birdHitbox.x + birdHitbox.width > this.x &&
+      birdHitbox.x < this.x + this.width &&
+      birdHitbox.y < this.topHeight
     ) {
       return true;
     }
@@ -102,9 +99,9 @@ export class PipeClass {
     // Collision with bottom pipe
     const bottomPipeY = this.topHeight + this.gap;
     if (
-      birdHitboxX + birdHitboxWidth > this.x &&
-      birdHitboxX < this.x + this.width &&
-      birdHitboxY + birdHitboxHeight > bottomPipeY
+      birdHitbox.x + birdHitbox.width > this.x &&
+      birdHitbox.x < this.x + this.width &&
+      birdHitbox.y + birdHitbox.height > bottomPipeY
     ) {
       return true;
     }

@@ -12,6 +12,7 @@ export class GameEngine {
   
   onJump: () => void;
   onGameOver: () => void;
+  restartTimer: number | null;
   
   constructor(
     canvas: HTMLCanvasElement, 
@@ -39,6 +40,7 @@ export class GameEngine {
     this.onJump = onJump;
     this.onGameOver = onGameOver;
     this.animationFrameId = 0;
+    this.restartTimer = null;
     
     // Set up event listeners
     this.setupEventListeners();
@@ -49,7 +51,7 @@ export class GameEngine {
   
   setupEventListeners() {
     const handleCanvasClick = () => {
-      if (this.stateManager.gameState === "waiting") {
+      if (this.stateManager.gameState === "waiting" && !this.restartTimer) {
         this.onJump(); // This will start the game via the parent component
       } else if (this.stateManager.gameState === "playing") {
         this.stateManager.bird.jump();
@@ -65,11 +67,38 @@ export class GameEngine {
   }
   
   updateGameState(newGameState: GameState) {
+    // If transitioning from gameover to waiting, set a timer
+    if (this.stateManager.gameState === "gameover" && newGameState === "waiting") {
+      this.startRestartTimer();
+    }
     this.stateManager.updateGameState(newGameState);
   }
   
   updateScore(newScore: number) {
     this.stateManager.updateScore(newScore);
+  }
+  
+  startRestartTimer() {
+    if (this.restartTimer) {
+      clearTimeout(this.restartTimer);
+    }
+    
+    // Set a flag to indicate counting down
+    this.stateManager.isCountingDown = true;
+    this.stateManager.countdownValue = 3;
+    
+    const countDown = () => {
+      if (this.stateManager.countdownValue > 1) {
+        this.stateManager.countdownValue--;
+        this.restartTimer = window.setTimeout(countDown, 1000);
+      } else {
+        this.stateManager.isCountingDown = false;
+        this.restartTimer = null;
+      }
+    };
+    
+    // Start countdown
+    this.restartTimer = window.setTimeout(countDown, 1000);
   }
   
   gameLoop = () => {
@@ -93,7 +122,13 @@ export class GameEngine {
   renderWaitingState() {
     this.renderer.renderBackground(this.stateManager.clouds);
     this.renderer.renderBird(this.stateManager.bird);
-    this.renderer.renderWaitingScreen();
+    
+    // Show countdown or "Click to start" based on state
+    if (this.stateManager.isCountingDown) {
+      this.renderer.renderCountdown(this.stateManager.countdownValue);
+    } else {
+      this.renderer.renderWaitingScreen();
+    }
   }
   
   renderPlayingState() {
@@ -138,6 +173,9 @@ export class GameEngine {
   }
   
   cleanup() {
+    if (this.restartTimer) {
+      clearTimeout(this.restartTimer);
+    }
     cancelAnimationFrame(this.animationFrameId);
     this.cleanupEventListeners();
   }

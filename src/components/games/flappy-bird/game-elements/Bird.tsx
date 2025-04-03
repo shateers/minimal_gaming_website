@@ -83,12 +83,12 @@ export class BirdClass {
     this.rotation = 0;
   }
   
-  update(gravity: number, canvasHeight: number, frameCount: number, onGameOver: () => void) {
+  update(gravity: number, canvasHeight: number) {
     this.velocity += gravity;
     this.y += this.velocity;
     
     // Update wing animation
-    if (frameCount % 5 === 0) {
+    if (Math.floor(Date.now() / 100) % 5 === 0) {
       this.wingPosition += this.wingDirection;
       if (this.wingPosition >= 3 || this.wingPosition <= 0) {
         this.wingDirection *= -1;
@@ -100,14 +100,7 @@ export class BirdClass {
     if (this.rotation > 70) this.rotation = 70;
     if (this.rotation < -30) this.rotation = -30;
     
-    // Floor collision
-    if (this.y + this.height > canvasHeight - 90) {
-      this.y = canvasHeight - this.height - 90;
-      this.velocity = 0;
-      onGameOver();
-    }
-    
-    // Ceiling collision
+    // Ceiling collision - just bounce back, don't end game
     if (this.y < 0) {
       this.y = 0;
       this.velocity = 0;
@@ -129,5 +122,15 @@ export class BirdClass {
       y: this.y, 
       wingPosition: this.wingPosition 
     });
+  }
+  
+  // Returns the hitbox for collision detection (smaller than visual sprite)
+  getHitbox() {
+    return {
+      x: this.x - this.width / 4,
+      y: this.y - this.height / 4,
+      width: this.width / 2,
+      height: this.height / 2
+    };
   }
 }
