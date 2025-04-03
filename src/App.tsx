@@ -26,6 +26,9 @@ import Minesweeper from "./pages/Games/Minesweeper";
 import FlappyBird from "./pages/Games/FlappyBird";
 import ComingSoon from "./pages/Games/ComingSoon";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicy from "./pages/Legal/PrivacyPolicy";
+import TermsOfService from "./pages/Legal/TermsOfService";
+import Contact from "./pages/Contact";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +60,9 @@ const App = () => (
             <Route path="/games/minesweeper" element={<Minesweeper />} />
             <Route path="/games/flappy-bird" element={<FlappyBird />} />
             <Route path="/games/coming-soon/:gameName" element={<ComingSoon />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/contact" element={<Contact />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
