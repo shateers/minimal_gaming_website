@@ -237,7 +237,7 @@ export const updateGameEntities = (
   canvasWidth: number, 
   canvasHeight: number,
   timestamp: number,
-  setScore: (score: number) => void,
+  setScore: (score: number | ((prev: number) => number)) => void,
   setLevelCompleted: (completed: boolean) => void
 ): boolean => {
   const deltaTime = timestamp - gameRefs.lastUpdateTime;
