@@ -1,4 +1,3 @@
-
 export interface Game {
   title: string;
   description: string;
@@ -110,6 +109,12 @@ export const gameCategories: GameCategory[] = [
         description: "Guide a cute character upward by jumping from platform to platform without falling.",
         href: "/games/doodle-jump",
         imageSrc: "/lovable-uploads/4457760b-7f30-42cc-8f8d-d00c5f5c1756.png"
+      },
+      {
+        title: "Cut the Rope",
+        description: "Cut ropes strategically to feed candy to a cute creature in this physics-based puzzle game.",
+        href: "/games/cut-the-rope",
+        imageSrc: "/lovable-uploads/41d143c8-cb3d-4fb4-b1af-b561e62e51f3.png"
       }
     ]
   },
@@ -179,7 +184,7 @@ export const gameCategories: GameCategory[] = [
       {
         title: "Cut the Rope",
         description: "Cut ropes to feed candy to a character.",
-        href: "/games/coming-soon/cut-the-rope",
+        href: "/games/cut-the-rope",
       },
       {
         title: "Doodle Jump",
