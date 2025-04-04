@@ -1,3 +1,4 @@
+
 export interface Game {
   title: string;
   description: string;
@@ -103,6 +104,12 @@ export const gameCategories: GameCategory[] = [
         description: "Control a paddle to bounce a ball and break bricks at the top of the screen.",
         href: "/games/breakout",
         imageSrc: "/lovable-uploads/34b49450-5cad-4bd8-8f4e-e5b065bfdc78.png"
+      },
+      {
+        title: "Doodle Jump",
+        description: "Guide a cute character upward by jumping from platform to platform without falling.",
+        href: "/games/doodle-jump",
+        imageSrc: "/lovable-uploads/4457760b-7f30-42cc-8f8d-d00c5f5c1756.png"
       }
     ]
   },
