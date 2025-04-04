@@ -83,8 +83,18 @@ export const useCutTheRopeGame = () => {
       canvas.width,
       canvas.height,
       timestamp,
-      (newScore) => {
-        setGameState(prev => ({...prev, score: newScore}));
+      (newScoreOrFn) => {
+        if (typeof newScoreOrFn === 'function') {
+          setGameState(prev => ({
+            ...prev, 
+            score: newScoreOrFn(prev.score)
+          }));
+        } else {
+          setGameState(prev => ({
+            ...prev, 
+            score: newScoreOrFn
+          }));
+        }
       },
       (completed) => {
         if (completed) {
