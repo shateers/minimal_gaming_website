@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { toast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -60,7 +59,6 @@ export const useDoodleJumpGame = () => {
   const keysRef = useRef<{ [key: string]: boolean }>({});
   const { user } = useAuth();
 
-  // Generate initial platforms
   const initGame = useCallback(() => {
     if (!canvasRef.current) return;
     
@@ -68,7 +66,6 @@ export const useDoodleJumpGame = () => {
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
     
-    // Setup player
     playerRef.current = {
       x: canvasWidth / 2 - 25,
       y: canvasHeight / 2,
@@ -78,13 +75,10 @@ export const useDoodleJumpGame = () => {
       velocityX: 0
     };
     
-    // Reset viewport offset
-    viewportOffsetRef.useRef = 0;
+    viewportOffsetRef.current = 0;
     
-    // Generate initial platforms
     const platforms: Platform[] = [];
     
-    // First platform directly under player
     platforms.push({
       x: canvasWidth / 2 - 50,
       y: canvasHeight / 2 + 60,
@@ -92,7 +86,6 @@ export const useDoodleJumpGame = () => {
       type: 'normal'
     });
     
-    // Generate random platforms
     for (let i = 0; i < 10; i++) {
       platforms.push({
         x: Math.random() * (canvasWidth - 100),
@@ -107,7 +100,6 @@ export const useDoodleJumpGame = () => {
     platformsRef.current = platforms;
     springsRef.current = [];
     
-    // Randomly add springs to some platforms
     platforms.forEach(platform => {
       if (Math.random() > 0.9 && platform.type === 'normal') {
         springsRef.current.push({
@@ -120,7 +112,6 @@ export const useDoodleJumpGame = () => {
       }
     });
     
-    // Reset game state
     setGameState({
       score: 0,
       highScore: gameState.highScore,
@@ -129,7 +120,6 @@ export const useDoodleJumpGame = () => {
     });
   }, [gameState.highScore]);
   
-  // Update game state
   const updateGameState = useCallback((timestamp: number) => {
     if (!canvasRef.current) return;
     
@@ -140,10 +130,8 @@ export const useDoodleJumpGame = () => {
     const deltaTime = timestamp - lastUpdateTimeRef.current;
     lastUpdateTimeRef.current = timestamp;
     
-    // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Handle player movement
     if (keysRef.current['ArrowLeft'] || keysRef.current['a']) {
       playerRef.current.velocityX = -8;
     } else if (keysRef.current['ArrowRight'] || keysRef.current['d']) {
@@ -152,46 +140,37 @@ export const useDoodleJumpGame = () => {
       playerRef.current.velocityX *= 0.9;
     }
     
-    // Update player position
     playerRef.current.x += playerRef.current.velocityX;
     playerRef.current.y += playerRef.current.velocityY;
-    playerRef.current.velocityY += 0.4; // Gravity
+    playerRef.current.velocityY += 0.4;
     
-    // Wrap player around screen edges
     if (playerRef.current.x > canvas.width) {
       playerRef.current.x = 0;
     } else if (playerRef.current.x < 0) {
       playerRef.current.x = canvas.width - playerRef.current.width;
     }
     
-    // Check if player is moving upward
     if (playerRef.current.velocityY < 0) {
-      // If player has gone up beyond the middle of the screen, move the viewport
       if (playerRef.current.y < canvas.height / 2) {
-        // Move all platforms down
         const viewportDelta = canvas.height / 2 - playerRef.current.y;
         viewportOffsetRef.current += viewportDelta;
         playerRef.current.y = canvas.height / 2;
         
-        // Increase score based on height
         const newScore = Math.floor(viewportOffsetRef.current / 10);
         if (newScore > gameState.score) {
           setGameState(prev => ({...prev, score: newScore}));
         }
         
-        // Move platforms down
         platformsRef.current.forEach(platform => {
           platform.y += viewportDelta;
         });
         
-        // Move springs down
         springsRef.current.forEach(spring => {
           spring.y += viewportDelta;
         });
       }
     }
     
-    // Remove platforms that have gone offscreen and add new ones
     platformsRef.current = platformsRef.current.filter(platform => platform.y < canvas.height);
     
     while (platformsRef.current.length < 10) {
@@ -208,10 +187,8 @@ export const useDoodleJumpGame = () => {
       });
     }
     
-    // Remove springs that have gone offscreen
     springsRef.current = springsRef.current.filter(spring => spring.y < canvas.height);
     
-    // Randomly add springs to some platforms
     if (Math.random() > 0.98) {
       const eligiblePlatforms = platformsRef.current.filter(p => 
         p.type === 'normal' && p.y < 0);
@@ -228,64 +205,15 @@ export const useDoodleJumpGame = () => {
       }
     }
     
-    // Check collision with platforms
-    if (playerRef.current.velocityY > 0) {
-      platformsRef.current.forEach(platform => {
-        if (
-          playerRef.current.x + playerRef.current.width > platform.x &&
-          playerRef.current.x < platform.x + platform.width &&
-          playerRef.current.y + playerRef.current.height > platform.y &&
-          playerRef.current.y + playerRef.current.height < platform.y + 10 &&
-          playerRef.current.velocityY > 0
-        ) {
-          // Handle different platform types
-          switch(platform.type) {
-            case 'normal':
-              playerRef.current.velocityY = -15;
-              break;
-            case 'moving':
-              playerRef.current.velocityY = -15;
-              break;
-            case 'breaking':
-              playerRef.current.velocityY = -15;
-              // Remove the platform
-              platform.y = canvas.height + 100;
-              break;
-            case 'bonus':
-              playerRef.current.velocityY = -20; // Higher jump
-              break;
-          }
-        }
-      });
-      
-      // Check collision with springs
-      springsRef.current.forEach(spring => {
-        if (
-          spring.active &&
-          playerRef.current.x + playerRef.current.width > spring.x &&
-          playerRef.current.x < spring.x + spring.width &&
-          playerRef.current.y + playerRef.current.height > spring.y &&
-          playerRef.current.y + playerRef.current.height < spring.y + spring.height &&
-          playerRef.current.velocityY > 0
-        ) {
-          playerRef.current.velocityY = -25; // Extra high jump
-          spring.active = false;
-        }
-      });
-    }
-    
-    // Update moving platforms
     platformsRef.current.forEach(platform => {
       if (platform.type === 'moving') {
         platform.x += Math.sin(timestamp / 1000) * 2;
       }
     });
     
-    // Draw background
     ctx.fillStyle = '#87CEEB';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Draw platforms
     platformsRef.current.forEach(platform => {
       switch(platform.type) {
         case 'normal':
@@ -305,7 +233,6 @@ export const useDoodleJumpGame = () => {
       ctx.fillRect(platform.x, platform.y, platform.width, 10);
     });
     
-    // Draw springs
     springsRef.current.forEach(spring => {
       if (spring.active) {
         ctx.fillStyle = '#FF6347';
@@ -313,11 +240,9 @@ export const useDoodleJumpGame = () => {
       }
     });
     
-    // Draw player
     ctx.fillStyle = '#FF5E5B';
     ctx.fillRect(playerRef.current.x, playerRef.current.y, playerRef.current.width, playerRef.current.height);
     
-    // Draw eyes
     ctx.fillStyle = 'white';
     ctx.fillRect(playerRef.current.x + 10, playerRef.current.y + 10, 10, 10);
     ctx.fillRect(playerRef.current.x + 30, playerRef.current.y + 10, 10, 10);
@@ -326,17 +251,14 @@ export const useDoodleJumpGame = () => {
     ctx.fillRect(playerRef.current.x + 12, playerRef.current.y + 12, 6, 6);
     ctx.fillRect(playerRef.current.x + 32, playerRef.current.y + 12, 6, 6);
     
-    // Draw mouth
     ctx.fillStyle = 'black';
     ctx.fillRect(playerRef.current.x + 15, playerRef.current.y + 30, 20, 5);
     
-    // Check game over
     if (playerRef.current.y > canvas.height) {
       endGame();
       return;
     }
     
-    // Continue game loop
     if (gameState.isPlaying && !gameState.isGameOver) {
       requestRef.current = requestAnimationFrame(updateGameState);
     }
@@ -366,7 +288,6 @@ export const useDoodleJumpGame = () => {
       isGameOver: true
     }));
     
-    // Save score to server if user is logged in
     if (user && finalScore > 0) {
       try {
         await saveGameScore({
@@ -390,7 +311,6 @@ export const useDoodleJumpGame = () => {
     }
   }, [gameState.score, gameState.highScore, user]);
   
-  // Initialize keyboard controls
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       keysRef.current[e.key] = true;
@@ -409,7 +329,6 @@ export const useDoodleJumpGame = () => {
     };
   }, []);
   
-  // Load high score from local storage
   useEffect(() => {
     const savedHighScore = localStorage.getItem('doodleJumpHighScore');
     if (savedHighScore) {
@@ -420,7 +339,6 @@ export const useDoodleJumpGame = () => {
     }
   }, []);
   
-  // Clean up animation frame on unmount
   useEffect(() => {
     return () => {
       cancelAnimationFrame(requestRef.current);
