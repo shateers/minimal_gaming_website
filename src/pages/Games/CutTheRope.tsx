@@ -7,6 +7,7 @@ import Instructions from "@/components/games/cut-the-rope/Instructions";
 import GameStats from "@/components/games/cut-the-rope/GameStats";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { Link } from "react-router-dom";
 import { Scissors } from "lucide-react";
 
 const CutTheRope = () => {
@@ -14,6 +15,16 @@ const CutTheRope = () => {
   
   useEffect(() => {
     document.title = "Cut the Rope - Shateer Games";
+    
+    // Prevent scrolling with arrow keys, space, etc. which can interfere with gameplay
+    const preventScroll = (e: KeyboardEvent) => {
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(e.key)) {
+        e.preventDefault();
+      }
+    };
+    
+    window.addEventListener("keydown", preventScroll);
+    return () => window.removeEventListener("keydown", preventScroll);
   }, []);
   
   return (

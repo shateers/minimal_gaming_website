@@ -17,6 +17,16 @@ const DoodleJump = () => {
 
   useEffect(() => {
     document.title = "Doodle Jump - Shateer Games";
+    
+    // Prevent scrolling with arrow keys, space, etc.
+    const preventScroll = (e: KeyboardEvent) => {
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(e.key)) {
+        e.preventDefault();
+      }
+    };
+    
+    window.addEventListener("keydown", preventScroll);
+    return () => window.removeEventListener("keydown", preventScroll);
   }, []);
 
   return (

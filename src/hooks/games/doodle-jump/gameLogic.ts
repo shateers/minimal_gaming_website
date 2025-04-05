@@ -1,10 +1,10 @@
-
 import { GameRefs, Platform, Spring } from './types';
 
 export const initializeGameEntities = (canvasWidth: number, canvasHeight: number): GameRefs => {
+  // Create player at a good starting position
   const player = {
-    x: canvasWidth / 2 - 25,
-    y: canvasHeight / 2,
+    x: canvasWidth / 2 - 25, // Center horizontally
+    y: canvasHeight - 150,   // Near bottom but not at the very bottom
     width: 50,
     height: 50,
     velocityY: 0,
@@ -16,16 +16,16 @@ export const initializeGameEntities = (canvasWidth: number, canvasHeight: number
   // Add initial platform below the player
   platforms.push({
     x: canvasWidth / 2 - 50,
-    y: canvasHeight / 2 + 60,
+    y: canvasHeight - 50,
     width: 100,
     type: 'normal'
   });
   
-  // Generate initial platforms
+  // Generate initial platforms with good spacing
   for (let i = 0; i < 10; i++) {
     platforms.push({
       x: Math.random() * (canvasWidth - 100),
-      y: (canvasHeight / 10) * i,
+      y: Math.max(50, canvasHeight - 150 - (canvasHeight / 6) * i), // Better distribution
       width: 70 + Math.random() * 50,
       type: Math.random() > 0.8 ? 'moving' : 
             Math.random() > 0.8 ? 'breaking' : 
@@ -67,9 +67,9 @@ export const updateGameEntities = (
   onScoreUpdate: (score: number) => void
 ): boolean => {
   // Handle horizontal movement based on key inputs
-  if (gameRefs.keys['ArrowLeft'] || gameRefs.keys['a']) {
+  if (gameRefs.keys['ArrowLeft'] || gameRefs.keys['a'] || gameRefs.keys['A']) {
     gameRefs.player.velocityX = -8;
-  } else if (gameRefs.keys['ArrowRight'] || gameRefs.keys['d']) {
+  } else if (gameRefs.keys['ArrowRight'] || gameRefs.keys['d'] || gameRefs.keys['D']) {
     gameRefs.player.velocityX = 8;
   } else {
     gameRefs.player.velocityX *= 0.9;
@@ -121,7 +121,7 @@ export const updateGameEntities = (
     
     gameRefs.platforms.push({
       x: Math.random() * (canvasWidth - 100),
-      y: highestPlatform.y - (canvasHeight / 10) - Math.random() * 50,
+      y: highestPlatform.y - Math.random() * 50 - 50, // Better spacing
       width: 70 + Math.random() * 50,
       type: Math.random() > 0.8 ? 'moving' : 
             Math.random() > 0.8 ? 'breaking' : 
@@ -150,6 +150,10 @@ export const updateGameEntities = (
   gameRefs.platforms.forEach(platform => {
     if (platform.type === 'moving') {
       platform.x += Math.sin(timestamp / 1000) * 2;
+      
+      // Keep platforms within bounds
+      if (platform.x < 0) platform.x = 0;
+      if (platform.x > canvasWidth - platform.width) platform.x = canvasWidth - platform.width;
     }
   });
   
