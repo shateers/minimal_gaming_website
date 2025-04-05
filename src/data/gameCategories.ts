@@ -1,3 +1,4 @@
+
 export interface Game {
   title: string;
   description: string;
@@ -88,7 +89,7 @@ export const gameCategories: GameCategory[] = [
       },
       {
         title: "Flappy Bird",
-        description: "Navigate a bird through gaps between pipes by tapping the screen to keep it airborne.",
+        description: "Navigate a bird through gaps between pipes by tapping or using the spacebar to keep it airborne.",
         href: "/games/flappy-bird",
         imageSrc: "/lovable-uploads/9d7fb8e-e6ac-44ad-be50-f34ca8ec1217.png"
       },
@@ -189,7 +190,7 @@ export const gameCategories: GameCategory[] = [
       {
         title: "Doodle Jump",
         description: "Keep jumping upwards without falling.",
-        href: "/games/coming-soon/doodle-jump",
+        href: "/games/doodle-jump",
       },
       {
         title: "Stacker",
