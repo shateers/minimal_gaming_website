@@ -1,4 +1,3 @@
-
 import { GameState } from "../../../../hooks/games/flappy-bird/useFlappyBirdGame";
 import { GameRenderer } from "./GameRenderer";
 import { GameStateManager } from "./GameState";
@@ -50,8 +49,10 @@ export class GameEngine {
   }
   
   setupEventListeners() {
-    const handleCanvasClick = () => {
-      if (this.stateManager.gameState === "waiting" && !this.restartTimer) {
+    const handleCanvasClick = (e: MouseEvent) => {
+      e.preventDefault(); // Prevent any default behavior
+      
+      if (this.stateManager.gameState === "waiting" && !this.stateManager.isCountingDown) {
         this.onJump(); // This will start the game via the parent component
       } else if (this.stateManager.gameState === "playing") {
         this.stateManager.bird.jump();
@@ -59,6 +60,11 @@ export class GameEngine {
     };
     
     this.canvas.addEventListener("click", handleCanvasClick);
+    
+    // Prevent scrolling when clicking on canvas
+    this.canvas.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+    });
   }
   
   cleanupEventListeners() {
@@ -86,6 +92,9 @@ export class GameEngine {
     // Set a flag to indicate counting down
     this.stateManager.isCountingDown = true;
     this.stateManager.countdownValue = 3;
+    
+    // Reset bird position immediately when timer starts
+    this.stateManager.resetBirdPosition();
     
     const countDown = () => {
       if (this.stateManager.countdownValue > 1) {

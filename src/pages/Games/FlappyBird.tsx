@@ -24,11 +24,11 @@ const FlappyBird = () => {
     document.title = "Flappy Bird - Shateer Games";
   }, []);
 
-  // Add event listener for key press (spacebar)
+  // Add event listener for key press (spacebar) with preventDefault
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === "Space") {
-        e.preventDefault();
+      if (e.code === "Space" || e.key === "ArrowUp") {
+        e.preventDefault(); // Prevent default scrolling
         if (gameState === "waiting") {
           startGame();
         } else if (gameState === "playing") {
@@ -39,8 +39,20 @@ const FlappyBird = () => {
       }
     };
 
+    // Prevent arrow key scrolling
+    const preventArrowScroll = (e: KeyboardEvent) => {
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(e.key)) {
+        e.preventDefault();
+      }
+    };
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", preventArrowScroll);
+    
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keydown", preventArrowScroll);
+    };
   }, [gameState, startGame, jumpBird, restartGame]);
 
   return (

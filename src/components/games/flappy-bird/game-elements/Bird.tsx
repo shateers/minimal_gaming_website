@@ -74,7 +74,7 @@ export class BirdClass {
   
   constructor(canvasWidth: number, canvasHeight: number) {
     this.x = canvasWidth / 3;
-    this.y = canvasHeight / 2;
+    this.y = canvasHeight * 0.3; // Start at the top third of screen
     this.width = 34;
     this.height = 24;
     this.velocity = 0;
@@ -84,6 +84,7 @@ export class BirdClass {
   }
   
   update(gravity: number, canvasHeight: number) {
+    // Apply gravity with a gentler initial fall
     this.velocity += gravity;
     this.y += this.velocity;
     
@@ -95,7 +96,7 @@ export class BirdClass {
       }
     }
     
-    // Update rotation based on velocity
+    // Update rotation based on velocity with limits
     this.rotation = this.velocity * 2;
     if (this.rotation > 70) this.rotation = 70;
     if (this.rotation < -30) this.rotation = -30;

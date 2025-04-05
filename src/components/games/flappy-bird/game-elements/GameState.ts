@@ -1,4 +1,3 @@
-
 import { GameState as GameStateType } from "../../../../hooks/games/flappy-bird/useFlappyBirdGame";
 import { BirdClass } from "./Bird";
 import { PipeClass } from "./Pipe";
@@ -40,10 +39,28 @@ export class GameStateManager {
     // Countdown state
     this.isCountingDown = false;
     this.countdownValue = 3;
+
+    // Set bird at the top when game starts
+    this.resetBirdPosition();
   }
 
   updateGameState(newState: GameStateType) {
     this.gameState = newState;
+    
+    // Reset bird position when the game state changes to waiting
+    if (newState === "waiting") {
+      this.resetBirdPosition();
+      this.pipes = []; // Clear pipes when restarting
+    }
+  }
+
+  // New method to reset bird position
+  resetBirdPosition() {
+    if (this.bird) {
+      this.bird.y = this.canvasHeight * 0.3; // Position bird at the top third of screen
+      this.bird.velocity = 0;
+      this.bird.rotation = 0;
+    }
   }
 
   updateScore(newScore: number) {
