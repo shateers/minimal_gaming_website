@@ -1,30 +1,13 @@
 
 import { useEffect } from "react";
-import { useCutTheRopeGame } from "@/hooks/games/cut-the-rope/useCutTheRopeGame";
-import GameCanvas from "@/components/games/cut-the-rope/GameCanvas";
-import GameControls from "@/components/games/cut-the-rope/GameControls";
-import Instructions from "@/components/games/cut-the-rope/Instructions";
-import GameStats from "@/components/games/cut-the-rope/GameStats";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Link } from "react-router-dom";
 import { Scissors } from "lucide-react";
 
 const CutTheRope = () => {
-  const { canvasRef, gameState, startGame, resetLevel, nextLevel } = useCutTheRopeGame();
-  
   useEffect(() => {
     document.title = "Cut the Rope - Shateer Games";
-    
-    // Prevent scrolling with arrow keys, space, etc. which can interfere with gameplay
-    const preventScroll = (e: KeyboardEvent) => {
-      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(e.key)) {
-        e.preventDefault();
-      }
-    };
-    
-    window.addEventListener("keydown", preventScroll);
-    return () => window.removeEventListener("keydown", preventScroll);
   }, []);
   
   return (
@@ -42,25 +25,39 @@ const CutTheRope = () => {
           </p>
         </div>
         
-        <div className="mb-6">
-          <GameStats gameState={gameState} />
+        <div className="flex justify-center mb-8">
+          <Link 
+            to="/" 
+            className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <span className="mr-2">←</span> Back to games
+          </Link>
         </div>
         
-        <div className="bg-white rounded-xl shadow-md p-4 md:p-6">
-          <div className="mb-6">
-            <GameCanvas canvasRef={canvasRef} />
+        <div className="bg-white rounded-xl shadow-md p-4 md:p-6 flex justify-center">
+          <div className="w-full max-w-3xl aspect-[4/3] overflow-hidden">
+            <iframe
+              src="https://www.gameflare.com/embed/cut-the-rope/"
+              title="Cut the Rope"
+              className="w-full h-full border-0"
+              allowFullScreen
+              allow="fullscreen"
+              sandbox="allow-same-origin allow-scripts"
+            ></iframe>
           </div>
-          
-          <GameControls
-            gameState={gameState}
-            onStart={startGame}
-            onReset={resetLevel}
-            onNextLevel={nextLevel}
-          />
-          
-          <div className="mt-8">
-            <Instructions />
-          </div>
+        </div>
+        
+        <div className="mt-8 bg-secondary/30 p-6 rounded-lg">
+          <h2 className="text-xl font-semibold mb-4">How to Play</h2>
+          <p className="mb-3">
+            Cut the Rope is a puzzle game where your goal is to feed candy to the adorable monster named Om Nom.
+          </p>
+          <ul className="list-disc pl-5 space-y-2">
+            <li>Click or tap on the ropes to cut them and release the candy</li>
+            <li>Time your cuts carefully to navigate the candy into Om Nom's mouth</li>
+            <li>Collect stars along the way for bonus points</li>
+            <li>Use bubbles, air cushions, and other elements to complete each level</li>
+          </ul>
         </div>
       </main>
       

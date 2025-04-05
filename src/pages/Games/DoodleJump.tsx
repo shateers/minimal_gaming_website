@@ -3,30 +3,10 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import GameCanvas from '@/components/games/doodle-jump/GameCanvas';
-import GameControls from '@/components/games/doodle-jump/GameControls';
-import Instructions from '@/components/games/doodle-jump/Instructions';
-import useDoodleJumpGame from '@/hooks/games/doodle-jump/useDoodleJumpGame';
 
 const DoodleJump = () => {
-  const {
-    canvasRef,
-    gameState,
-    startGame,
-  } = useDoodleJumpGame();
-
   useEffect(() => {
     document.title = "Doodle Jump - Shateer Games";
-    
-    // Prevent scrolling with arrow keys, space, etc.
-    const preventScroll = (e: KeyboardEvent) => {
-      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(e.key)) {
-        e.preventDefault();
-      }
-    };
-    
-    window.addEventListener("keydown", preventScroll);
-    return () => window.removeEventListener("keydown", preventScroll);
   }, []);
 
   return (
@@ -50,23 +30,43 @@ const DoodleJump = () => {
             </p>
           </div>
           
-          <GameControls 
-            gameState={gameState}
-            onStart={startGame}
-          />
-          
           <div className="flex justify-center mb-8">
-            <GameCanvas ref={canvasRef} width={400} height={600} />
+            <div className="w-full max-w-md aspect-[1/1.5] overflow-hidden rounded-lg shadow-lg">
+              <iframe
+                src="https://www.bestgames.com/embed/Doodle-Jump"
+                title="Doodle Jump"
+                className="w-full h-full border-0"
+                allowFullScreen
+                allow="fullscreen"
+                sandbox="allow-same-origin allow-scripts"
+              ></iframe>
+            </div>
           </div>
           
-          <Instructions />
-          
-          <div className="bg-secondary/30 p-4 rounded-lg mb-8">
-            <h2 className="text-xl font-semibold mb-2">Keyboard Controls</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <p><span className="font-medium">Left Arrow or A:</span> Move left</p>
-                <p><span className="font-medium">Right Arrow or D:</span> Move right</p>
+          <div className="bg-secondary/30 p-6 rounded-lg mb-8">
+            <h2 className="text-xl font-semibold mb-4">How to Play</h2>
+            <div className="space-y-4">
+              <p>
+                In Doodle Jump, you control a cute character that automatically jumps upward. Your goal is to climb as high as possible without falling.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <h3 className="font-medium mb-2">Keyboard Controls:</h3>
+                  <ul className="space-y-2">
+                    <li><span className="font-medium">Left Arrow or A:</span> Move left</li>
+                    <li><span className="font-medium">Right Arrow or D:</span> Move right</li>
+                    <li><span className="font-medium">Spacebar:</span> Shoot (if available)</li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-medium mb-2">Game Features:</h3>
+                  <ul className="space-y-2">
+                    <li>Various platform types (regular, moving, breaking)</li>
+                    <li>Powerups: Jetpacks, springs, propeller hats</li>
+                    <li>Monsters that you need to avoid or shoot</li>
+                    <li>Your score increases as you climb higher</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
