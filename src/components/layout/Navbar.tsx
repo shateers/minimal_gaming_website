@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -44,6 +43,12 @@ const Navbar = () => {
                 className="px-4 py-1.5 bg-primary text-primary-foreground rounded-md"
               >
                 Sign Up
+              </Link>
+              <Link
+                to="/admin/signin"
+                className="hover:text-primary transition-colors text-sm"
+              >
+                Admin Login
               </Link>
             </>
           ) : !loading && user ? (

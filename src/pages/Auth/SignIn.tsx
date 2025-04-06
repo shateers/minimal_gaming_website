@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
+import { supabase } from "@/integrations/supabase/client";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -22,20 +23,37 @@ const SignIn = () => {
       const { error } = await signIn(email, password);
       
       if (error) {
+        throw error;
+      }
+
+      // Check if the user is an admin
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', (await supabase.auth.getUser()).data.user?.id)
+        .single();
+
+      if (profileError) {
+        throw profileError;
+      }
+
+      if (!profileData?.is_admin) {
+        // If not an admin, sign out and show error
+        await supabase.auth.signOut();
         toast({
-          title: "Error signing in",
-          description: error.message,
+          title: "Access Denied",
+          description: "You do not have admin privileges.",
           variant: "destructive",
         });
         return;
       }
       
       toast({
-        title: "Welcome back!",
+        title: "Welcome Admin!",
         description: "You have successfully signed in.",
       });
       
-      navigate("/");
+      navigate("/admin/games");
     } catch (error: any) {
       toast({
         title: "Error signing in",
@@ -60,9 +78,9 @@ const SignIn = () => {
             >
               <span className="mr-2">←</span> Back to home
             </Link>
-            <h1 className="text-3xl font-bold">Sign In</h1>
+            <h1 className="text-3xl font-bold">Admin Sign In</h1>
             <p className="text-muted-foreground mt-2">
-              Welcome back to GameHub! Sign in to track your scores and compete on the leaderboards.
+              Please enter your admin credentials.
             </p>
           </div>
 
@@ -74,7 +92,7 @@ const SignIn = () => {
               <input
                 id="email"
                 type="email"
-                placeholder="your.email@example.com"
+                placeholder="admin@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -104,15 +122,6 @@ const SignIn = () => {
             >
               {loading ? "Signing in..." : "Sign In"}
             </button>
-
-            <div className="text-center text-sm">
-              <p>
-                Don't have an account?{" "}
-                <Link to="/signup" className="text-primary hover:underline">
-                  Sign up
-                </Link>
-              </p>
-            </div>
           </form>
         </div>
       </main>

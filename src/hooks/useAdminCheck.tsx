@@ -20,7 +20,6 @@ export const useAdminCheck = () => {
       }
       
       try {
-        // Fetch admin status using custom function to bypass type checking
         const { data, error } = await supabase
           .from('profiles')
           .select('is_admin')
@@ -31,7 +30,6 @@ export const useAdminCheck = () => {
           throw error;
         }
         
-        // Check if user is admin
         if (!data || data.is_admin !== true) {
           toast({
             title: "Access Denied",
