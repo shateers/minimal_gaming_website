@@ -7,16 +7,23 @@ interface GameCardProps {
   description: string;
   href: string;
   imageSrc?: string;
-  image_url?: string; // Added support for image_url from Supabase
+  image_url?: string; 
   index: number;
 }
 
-const GameCard = ({ title, description, href, imageSrc, image_url, index }: GameCardProps) => {
+const GameCard = ({ 
+  title, 
+  description, 
+  href, 
+  imageSrc, 
+  image_url, 
+  index 
+}: GameCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   
-  // Use either imageSrc or image_url, preferring image_url if available
+  // Prioritize image_url from Supabase, fallback to imageSrc
   const imageSource = image_url || imageSrc;
 
   useEffect(() => {
