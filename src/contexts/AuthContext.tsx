@@ -6,7 +6,11 @@ import type { Session, User } from "@supabase/supabase-js";
 type AuthContextType = {
   session: Session | null;
   user: User | null;
-  profile: any | null;
+  profile: {
+    is_admin?: boolean;
+    username?: string;
+    avatar_url?: string;
+  } | null;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string) => Promise<{ error: any, data: any }>;
   signOut: () => Promise<void>;
@@ -18,7 +22,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<any | null>(null);
+  const [profile, setProfile] = useState<{
+    is_admin?: boolean;
+    username?: string;
+    avatar_url?: string;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -54,12 +62,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function fetchProfile(userId: string) {
     const { data, error } = await supabase
       .from("profiles")
-      .select("*")
+      .select("is_admin, username, avatar_url")
       .eq("id", userId)
       .single();
       
     if (!error && data) {
-      setProfile(data);
+      setProfile({
+        is_admin: data.is_admin,
+        username: data.username,
+        avatar_url: data.avatar_url
+      });
     }
   }
 
