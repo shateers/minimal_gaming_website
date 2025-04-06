@@ -5,3 +5,4 @@ CREATE BUCKET IF NOT EXISTS game-assets;
 
 -- Set the RLS policy for the bucket to allow authenticated users to read
 -- This is handled via the Supabase dashboard, not directly via SQL
+
