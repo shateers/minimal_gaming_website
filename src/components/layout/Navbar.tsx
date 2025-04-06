@@ -5,7 +5,10 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, loading } = useAuth();
+  const { user, loading, profile } = useAuth();
+  
+  // Check if user has admin privileges
+  const isAdmin = profile?.is_admin === true;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
@@ -21,6 +24,13 @@ const Navbar = () => {
           <Link to="/leaderboard" className="hover:text-primary transition-colors">
             Leaderboard
           </Link>
+          
+          {!loading && isAdmin && (
+            <Link to="/admin/games" className="hover:text-primary transition-colors">
+              Admin
+            </Link>
+          )}
+          
           {!loading && !user ? (
             <>
               <Link
@@ -76,6 +86,17 @@ const Navbar = () => {
             >
               Leaderboard
             </Link>
+            
+            {isAdmin && (
+              <Link
+                to="/admin/games"
+                onClick={() => setIsMenuOpen(false)}
+                className="hover:text-primary transition-colors py-1"
+              >
+                Admin
+              </Link>
+            )}
+            
             {!loading && !user ? (
               <>
                 <Link

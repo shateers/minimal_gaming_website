@@ -10,6 +10,7 @@ import SignIn from "./pages/Auth/SignIn";
 import SignUp from "./pages/Auth/SignUp";
 import Profile from "./pages/Profile";
 import Leaderboard from "./pages/Leaderboard";
+import GameManagement from "./pages/Admin/GameManagement";
 import TicTacToe from "./pages/Games/TicTacToe";
 import Snake from "./pages/Games/Snake";
 import Sudoku from "./pages/Games/Sudoku";
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/signup" element={<SignUp />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/admin/games" element={<GameManagement />} />
             <Route path="/games/tic-tac-toe" element={<TicTacToe />} />
             <Route path="/games/snake" element={<Snake />} />
             <Route path="/games/sudoku" element={<Sudoku />} />
