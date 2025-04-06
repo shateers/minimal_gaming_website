@@ -7,13 +7,17 @@ interface GameCardProps {
   description: string;
   href: string;
   imageSrc?: string;
+  image_url?: string; // Added support for image_url from Supabase
   index: number;
 }
 
-const GameCard = ({ title, description, href, imageSrc, index }: GameCardProps) => {
+const GameCard = ({ title, description, href, imageSrc, image_url, index }: GameCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  
+  // Use either imageSrc or image_url, preferring image_url if available
+  const imageSource = image_url || imageSrc;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -58,9 +62,9 @@ const GameCard = ({ title, description, href, imageSrc, index }: GameCardProps) 
         >
           <div className="flex flex-col h-full p-5">
             <div className="mb-4 bg-gray-100 rounded-lg h-40 overflow-hidden flex items-center justify-center">
-              {imageSrc ? (
+              {imageSource ? (
                 <img 
-                  src={imageSrc} 
+                  src={imageSource} 
                   alt={title} 
                   className="w-full h-full object-contain transition-transform duration-700 ease-out"
                 />

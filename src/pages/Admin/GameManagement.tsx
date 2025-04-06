@@ -64,7 +64,17 @@ const GameManagement = () => {
         .eq('id', user.id)
         .single();
         
-      if (error || !data || !data.is_admin) {
+      if (error) {
+        toast({
+          title: "Error fetching admin status",
+          description: error.message,
+          variant: "destructive",
+        });
+        navigate('/');
+        return;
+      }
+      
+      if (!data || data.is_admin !== true) {
         toast({
           title: "Access Denied",
           description: "You don't have admin privileges",
@@ -75,23 +85,58 @@ const GameManagement = () => {
       }
       
       setIsAdmin(true);
+      fetchGames();
     };
     
     checkAdmin();
-    
-    // Flatten all games from categories into a single array
-    const allGames: Game[] = [];
-    gameCategories.forEach(category => {
-      category.games.forEach(game => {
-        allGames.push({
-          ...game,
-          id: generateGameId(game.title)
-        });
-      });
-    });
-    
-    setGamesList(allGames);
   }, [user, navigate, toast]);
+  
+  // Fetch games from Supabase
+  const fetchGames = async () => {
+    try {
+      // Try to get games from database
+      const { data: gamesData, error: gamesError } = await supabase
+        .from('games')
+        .select('*');
+      
+      if (gamesError) throw gamesError;
+      
+      if (gamesData && gamesData.length > 0) {
+        setGamesList(gamesData);
+      } else {
+        // If no games in database, initialize from gameCategories
+        const allGames: Game[] = [];
+        gameCategories.forEach(category => {
+          category.games.forEach(game => {
+            allGames.push({
+              ...game,
+              id: generateGameId(game.title)
+            });
+          });
+        });
+        
+        // Insert games into database
+        await Promise.all(allGames.map(async (game) => {
+          const gameId = game.id || generateGameId(game.title);
+          await supabase.from('games').upsert({
+            id: gameId,
+            title: game.title,
+            description: game.description,
+            href: game.href,
+            image_url: game.imageSrc
+          });
+        }));
+        
+        setGamesList(allGames);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error loading games",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
   
   // Generate a consistent ID based on game title
   const generateGameId = (title: string): string => {
@@ -131,11 +176,10 @@ const GameManagement = () => {
       // Update game image in database
       const { error: updateError } = await supabase
         .from('games')
-        .upsert({
-          id: gameId,
-          title: game.title,
+        .update({
           image_url: data.publicUrl
-        });
+        })
+        .eq('id', gameId);
         
       if (updateError) {
         throw updateError;
@@ -147,9 +191,8 @@ const GameManagement = () => {
       });
       
       // Update local state to show the new image
-      // Note: In a production app, you would want to refresh from database
       setGamesList(prevGames => prevGames.map(g => 
-        g.title === game.title ? { ...g, imageSrc: data.publicUrl } : g
+        g.id === gameId ? { ...g, imageSrc: data.publicUrl } : g
       ));
       
     } catch (error: any) {
@@ -183,7 +226,7 @@ const GameManagement = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {gamesList.map((game) => (
-              <Card key={game.title} className="overflow-hidden">
+              <Card key={game.id || game.title} className="overflow-hidden">
                 <CardHeader className="p-4">
                   <CardTitle className="text-lg">{game.title}</CardTitle>
                   <CardDescription className="line-clamp-2 text-xs">

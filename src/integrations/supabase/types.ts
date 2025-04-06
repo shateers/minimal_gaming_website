@@ -53,11 +53,36 @@ export type Database = {
           },
         ]
       }
+      games: {
+        Row: {
+          description: string | null
+          href: string | null
+          id: string
+          image_url: string | null
+          title: string
+        }
+        Insert: {
+          description?: string | null
+          href?: string | null
+          id: string
+          image_url?: string | null
+          title: string
+        }
+        Update: {
+          description?: string | null
+          href?: string | null
+          id?: string
+          image_url?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           created_at: string
           id: string
+          is_admin: boolean | null
           updated_at: string
           username: string | null
         }
@@ -65,6 +90,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           id: string
+          is_admin?: boolean | null
           updated_at?: string
           username?: string | null
         }
@@ -72,6 +98,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           id?: string
+          is_admin?: boolean | null
           updated_at?: string
           username?: string | null
         }
