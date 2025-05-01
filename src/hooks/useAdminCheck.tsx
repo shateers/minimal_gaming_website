@@ -11,6 +11,7 @@ export const useAdminCheck = () => {
   const { toast } = useToast();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -20,12 +21,25 @@ export const useAdminCheck = () => {
       }
       
       try {
+        // Add timeout to prevent infinite loading
+        const timeoutId = setTimeout(() => {
+          setIsLoading(false);
+          setError("Connection timeout. Please try again.");
+          toast({
+            title: "Connection timeout",
+            description: "Failed to verify admin status. Please refresh and try again.",
+            variant: "destructive",
+          });
+        }, 10000); // 10 second timeout
+        
         const { data, error } = await supabase
           .from('profiles')
           .select('is_admin')
           .eq('id', user.id)
           .single();
           
+        clearTimeout(timeoutId);
+        
         if (error) {
           throw error;
         }
@@ -41,7 +55,9 @@ export const useAdminCheck = () => {
         }
         
         setIsAdmin(true);
+        setError(null);
       } catch (error: any) {
+        setError(error.message);
         toast({
           title: "Error fetching admin status",
           description: error.message,
@@ -56,5 +72,5 @@ export const useAdminCheck = () => {
     checkAdmin();
   }, [user, navigate, toast]);
 
-  return { isAdmin, isLoading };
+  return { isAdmin, isLoading, error };
 };

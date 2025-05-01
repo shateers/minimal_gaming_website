@@ -3,7 +3,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Game } from "@/data/gameTypes";
-import { Upload } from "lucide-react";
+import { Upload, AlertCircle } from "lucide-react";
 import { 
   Dialog,
   DialogContent,
@@ -15,37 +15,83 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface ImageUploadDialogProps {
   game: Game;
   onImageUpdated: (gameId: string, imageUrl: string) => void;
 }
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
 const ImageUploadDialog = ({ game, onImageUpdated }: ImageUploadDialogProps) => {
   const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
 
+  // Check if storage bucket exists and create if needed
+  const ensureStorageBucket = async (): Promise<boolean> => {
+    try {
+      // First check if bucket exists
+      const { data: buckets, error: bucketsError } = await supabase
+        .storage
+        .listBuckets();
+        
+      if (bucketsError) throw bucketsError;
+      
+      const bucketExists = buckets?.some(bucket => bucket.name === 'game-assets');
+      
+      if (!bucketExists) {
+        const { error } = await supabase.storage.createBucket('game-assets', {
+          public: true,
+          fileSizeLimit: MAX_FILE_SIZE,
+        });
+        
+        if (error) throw error;
+      }
+      
+      return true;
+    } catch (error: any) {
+      console.error("Storage bucket error:", error);
+      setError(`Failed to initialize storage: ${error.message}`);
+      return false;
+    }
+  };
+
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    setError(null);
+    
     if (!event.target.files || event.target.files.length === 0) {
       return;
     }
     
-    setIsUploading(true);
     const file = event.target.files[0];
+    
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE) {
+      setError(`File size exceeds the ${MAX_FILE_SIZE / (1024 * 1024)}MB limit`);
+      return;
+    }
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Only image files are allowed');
+      return;
+    }
+    
+    setIsUploading(true);
+    
     const fileExt = file.name.split('.').pop();
     const gameId = game.id || game.title.toLowerCase().replace(/[^a-z0-9]/g, '-');
-    const filePath = `game-images/${gameId}.${fileExt}`;
+    const fileName = `${gameId}-${Date.now()}`;
+    const filePath = `game-images/${fileName}.${fileExt}`;
     
     try {
-      // Create storage bucket if it doesn't exist
-      try {
-        await supabase.storage.createBucket('game-assets', {
-          public: true,
-          fileSizeLimit: 5242880, // 5MB
-        });
-      } catch (error) {
-        // Bucket might already exist, continue
-        console.log('Storage bucket might already exist');
+      // Ensure storage bucket exists
+      const bucketReady = await ensureStorageBucket();
+      if (!bucketReady) {
+        throw new Error('Failed to initialize storage');
       }
       
       // Upload the file to Supabase Storage
@@ -84,7 +130,11 @@ const ImageUploadDialog = ({ game, onImageUpdated }: ImageUploadDialogProps) => 
       // Call the callback to update the parent component
       onImageUpdated(gameId, data.publicUrl);
       
+      // Close the dialog after successful upload
+      setIsOpen(false);
+      
     } catch (error: any) {
+      setError(error.message);
       toast({
         title: "Error updating image",
         description: error.message,
@@ -96,11 +146,15 @@ const ImageUploadDialog = ({ game, onImageUpdated }: ImageUploadDialogProps) => 
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button 
           size="sm" 
           variant="outline"
+          onClick={() => {
+            setError(null);
+            setIsOpen(true);
+          }}
         >
           <Upload className="mr-2 h-4 w-4" />
           Update Image
@@ -110,11 +164,21 @@ const ImageUploadDialog = ({ game, onImageUpdated }: ImageUploadDialogProps) => 
         <DialogHeader>
           <DialogTitle>Update Game Image</DialogTitle>
           <DialogDescription>
-            Upload a new image for {game.title}
+            Upload a new image for {game.title}. Maximum size: 5MB.
           </DialogDescription>
         </DialogHeader>
         
         <div className="grid gap-4 py-4">
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>
+                {error}
+              </AlertDescription>
+            </Alert>
+          )}
+          
           <div className="flex flex-col items-center gap-4">
             {(game.image_url || game.imageSrc) && (
               <div className="w-full max-w-md h-48 bg-muted rounded-md overflow-hidden">
@@ -137,7 +201,11 @@ const ImageUploadDialog = ({ game, onImageUpdated }: ImageUploadDialogProps) => 
         </div>
         
         <DialogFooter>
-          <Button variant="outline" disabled={isUploading}>
+          <Button 
+            variant="outline" 
+            disabled={isUploading}
+            onClick={() => setIsOpen(false)}
+          >
             {isUploading ? "Uploading..." : "Cancel"}
           </Button>
         </DialogFooter>
