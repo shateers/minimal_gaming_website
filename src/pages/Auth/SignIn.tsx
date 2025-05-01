@@ -20,40 +20,90 @@ const SignIn = () => {
     setLoading(true);
 
     try {
+      // Special case for admin login with hardcoded credentials
+      if (email === "admin@gmail.com" && password === "admin@1234") {
+        const { error } = await signIn(email, password);
+        
+        if (error) {
+          // If the admin user doesn't exist yet, create it
+          if (error.message.includes("Invalid login credentials")) {
+            // First create the user
+            const { error: signUpError, data } = await supabase.auth.signUp({
+              email,
+              password,
+            });
+            
+            if (signUpError) {
+              throw signUpError;
+            }
+            
+            // Then update their profile to be an admin
+            if (data.user) {
+              const { error: profileError } = await supabase
+                .from('profiles')
+                .update({ is_admin: true })
+                .eq('id', data.user.id);
+              
+              if (profileError) {
+                throw profileError;
+              }
+              
+              // Now sign in with the new account
+              const { error: signInError } = await signIn(email, password);
+              if (signInError) {
+                throw signInError;
+              }
+            }
+          } else {
+            throw error;
+          }
+        }
+        
+        // Check if the user is an admin
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('is_admin')
+          .eq('id', (await supabase.auth.getUser()).data.user?.id)
+          .single();
+
+        if (profileError) {
+          throw profileError;
+        }
+
+        // Update the profile to ensure is_admin is true
+        if (profileData && !profileData.is_admin) {
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ is_admin: true })
+            .eq('id', (await supabase.auth.getUser()).data.user?.id);
+            
+          if (updateError) {
+            throw updateError;
+          }
+        }
+        
+        toast({
+          title: "Welcome Admin!",
+          description: "You have successfully signed in.",
+        });
+        
+        navigate("/admin/games");
+        return;
+      }
+      
+      // Regular user signin
       const { error } = await signIn(email, password);
       
       if (error) {
         throw error;
       }
 
-      // Check if the user is an admin
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('is_admin')
-        .eq('id', (await supabase.auth.getUser()).data.user?.id)
-        .single();
-
-      if (profileError) {
-        throw profileError;
-      }
-
-      if (!profileData?.is_admin) {
-        // If not an admin, sign out and show error
-        await supabase.auth.signOut();
-        toast({
-          title: "Access Denied",
-          description: "You do not have admin privileges.",
-          variant: "destructive",
-        });
-        return;
-      }
-      
       toast({
-        title: "Welcome Admin!",
-        description: "You have successfully signed in.",
+        title: "Sign in successful!",
+        description: "Welcome back to Shateer Games.",
       });
       
-      navigate("/admin/games");
+      navigate("/");
     } catch (error: any) {
       toast({
         title: "Error signing in",
@@ -78,9 +128,9 @@ const SignIn = () => {
             >
               <span className="mr-2">←</span> Back to home
             </Link>
-            <h1 className="text-3xl font-bold">Admin Sign In</h1>
+            <h1 className="text-3xl font-bold">Sign In</h1>
             <p className="text-muted-foreground mt-2">
-              Please enter your admin credentials.
+              Please enter your credentials to continue.
             </p>
           </div>
 
@@ -92,7 +142,7 @@ const SignIn = () => {
               <input
                 id="email"
                 type="email"
-                placeholder="admin@example.com"
+                placeholder="your.email@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -122,6 +172,15 @@ const SignIn = () => {
             >
               {loading ? "Signing in..." : "Sign In"}
             </button>
+
+            <div className="text-center text-sm">
+              <p>
+                Don't have an account?{" "}
+                <Link to="/signup" className="text-primary hover:underline">
+                  Sign up
+                </Link>
+              </p>
+            </div>
           </form>
         </div>
       </main>
