@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle 
 } from "@/components/ui/card";
+import { useState } from "react";
 
 interface GameAdminCardProps {
   game: Game;
@@ -19,6 +20,7 @@ interface GameAdminCardProps {
 const GameAdminCard = ({ game, onImageUpdated }: GameAdminCardProps) => {
   // Use image_url with fallback to imageSrc for consistent image handling
   const gameImage = game.image_url || game.imageSrc;
+  const [imageError, setImageError] = useState(false);
   
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
@@ -31,14 +33,14 @@ const GameAdminCard = ({ game, onImageUpdated }: GameAdminCardProps) => {
       
       <CardContent className="p-4 pt-0">
         <div className="w-full h-32 bg-muted rounded-md overflow-hidden mb-3 relative">
-          {gameImage ? (
+          {gameImage && !imageError ? (
             <img 
               src={gameImage} 
               alt={game.title}
               className="w-full h-full object-cover" 
               onError={(e) => {
-                // Fallback if image fails to load
-                e.currentTarget.src = '/placeholder.svg';
+                console.log("Image load error for:", game.title);
+                setImageError(true);
               }}
             />
           ) : (
@@ -48,15 +50,28 @@ const GameAdminCard = ({ game, onImageUpdated }: GameAdminCardProps) => {
             </div>
           )}
         </div>
-        <p className="text-xs text-muted-foreground truncate">
-          {game.id}
-        </p>
+        <div className="flex justify-between items-center">
+          <p className="text-xs text-muted-foreground truncate w-3/4">
+            ID: {game.id}
+          </p>
+          {gameImage && (
+            <button 
+              className="text-xs text-blue-500 hover:underline" 
+              onClick={() => window.open(gameImage, '_blank')}
+            >
+              View
+            </button>
+          )}
+        </div>
       </CardContent>
       
       <CardFooter className="p-4 pt-0 flex justify-end">
         <ImageUploadDialog 
           game={game} 
-          onImageUpdated={onImageUpdated} 
+          onImageUpdated={(gameId, newImageUrl) => {
+            setImageError(false);
+            onImageUpdated(gameId, newImageUrl);
+          }} 
         />
       </CardFooter>
     </Card>

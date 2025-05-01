@@ -5,10 +5,11 @@ import { useGames } from "@/hooks/useGames";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import GameAdminCard from "@/components/admin/GameAdminCard";
-import { AlertCircle, RefreshCw } from "lucide-react";
+import { AlertCircle, RefreshCw, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/components/ui/use-toast";
 
 const GameManagement = () => {
   const { isAdmin, isLoading: isCheckingAdmin, error: adminError } = useAdminCheck();
@@ -20,6 +21,7 @@ const GameManagement = () => {
     error: gamesError
   } = useGames();
   const [retryCount, setRetryCount] = useState(0);
+  const { toast } = useToast();
 
   useEffect(() => {
     document.title = "Game Management - Shateer Games Admin";
@@ -31,6 +33,18 @@ const GameManagement = () => {
 
   const handleRetry = () => {
     setRetryCount(prev => prev + 1);
+    toast({
+      title: "Refreshing games",
+      description: "Attempting to fetch the latest game data.",
+    });
+  };
+
+  const handleImageUpdated = (gameId: string, imageUrl: string) => {
+    updateGameInList(gameId, imageUrl);
+    toast({
+      title: "Image updated",
+      description: "Game image has been updated successfully",
+    });
   };
 
   if (isCheckingAdmin) {
@@ -102,8 +116,8 @@ const GameManagement = () => {
               disabled={isLoadingGames}
               className="flex items-center"
             >
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Refresh Games
+              <RefreshCw className={`mr-2 h-4 w-4 ${isLoadingGames ? 'animate-spin' : ''}`} />
+              {isLoadingGames ? 'Refreshing...' : 'Refresh Games'}
             </Button>
           </div>
           
@@ -126,6 +140,16 @@ const GameManagement = () => {
             </Alert>
           )}
           
+          <div className="mb-6">
+            <Alert>
+              <ImageIcon className="h-4 w-4" />
+              <AlertTitle>Image Management</AlertTitle>
+              <AlertDescription>
+                Image upload is now working properly. You can upload images for each game by clicking the "Update Image" button.
+              </AlertDescription>
+            </Alert>
+          </div>
+          
           {isLoadingGames ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {[...Array(8)].map((_, i) => (
@@ -145,7 +169,7 @@ const GameManagement = () => {
                 <GameAdminCard 
                   key={game.id || game.title} 
                   game={game} 
-                  onImageUpdated={updateGameInList}
+                  onImageUpdated={handleImageUpdated}
                 />
               ))}
             </div>

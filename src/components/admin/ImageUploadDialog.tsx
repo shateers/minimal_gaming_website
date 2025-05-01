@@ -30,35 +30,6 @@ const ImageUploadDialog = ({ game, onImageUpdated }: ImageUploadDialogProps) => 
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
 
-  // Check if storage bucket exists and create if needed
-  const ensureStorageBucket = async (): Promise<boolean> => {
-    try {
-      // First check if bucket exists
-      const { data: buckets, error: bucketsError } = await supabase
-        .storage
-        .listBuckets();
-        
-      if (bucketsError) throw bucketsError;
-      
-      const bucketExists = buckets?.some(bucket => bucket.name === 'game-assets');
-      
-      if (!bucketExists) {
-        const { error } = await supabase.storage.createBucket('game-assets', {
-          public: true,
-          fileSizeLimit: MAX_FILE_SIZE,
-        });
-        
-        if (error) throw error;
-      }
-      
-      return true;
-    } catch (error: any) {
-      console.error("Storage bucket error:", error);
-      setError(`Failed to initialize storage: ${error.message}`);
-      return false;
-    }
-  };
-
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setError(null);
     
@@ -88,14 +59,8 @@ const ImageUploadDialog = ({ game, onImageUpdated }: ImageUploadDialogProps) => 
     const filePath = `game-images/${fileName}.${fileExt}`;
     
     try {
-      // Ensure storage bucket exists
-      const bucketReady = await ensureStorageBucket();
-      if (!bucketReady) {
-        throw new Error('Failed to initialize storage');
-      }
-      
-      // Upload the file to Supabase Storage
-      const { error: uploadError } = await supabase.storage
+      // Upload the file to Supabase Storage - we're using the bucket created by SQL
+      const { error: uploadError, data: uploadData } = await supabase.storage
         .from('game-assets')
         .upload(filePath, file, { upsert: true });
         
@@ -112,6 +77,8 @@ const ImageUploadDialog = ({ game, onImageUpdated }: ImageUploadDialogProps) => 
         throw new Error('Failed to get public URL');
       }
       
+      console.log("File uploaded successfully, public URL:", data.publicUrl);
+      
       // Update game image in database
       const { error: updateError } = await supabase
         .from('games')
@@ -119,6 +86,7 @@ const ImageUploadDialog = ({ game, onImageUpdated }: ImageUploadDialogProps) => 
         .eq('id', gameId);
         
       if (updateError) {
+        console.error("Error updating game record:", updateError);
         throw updateError;
       }
       
@@ -134,6 +102,7 @@ const ImageUploadDialog = ({ game, onImageUpdated }: ImageUploadDialogProps) => 
       setIsOpen(false);
       
     } catch (error: any) {
+      console.error("Upload error details:", error);
       setError(error.message);
       toast({
         title: "Error updating image",
