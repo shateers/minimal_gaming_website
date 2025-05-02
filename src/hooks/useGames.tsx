@@ -32,6 +32,26 @@ export const useGames = () => {
     return await supabase.from('games').upsert(game);
   };
 
+  // Get all games from all categories
+  const getAllGamesFromCategories = (): Game[] => {
+    const allGames: Game[] = [];
+    
+    gameCategories.forEach(category => {
+      category.games.forEach(game => {
+        const gameId = generateGameId(game.title);
+        allGames.push({
+          ...game,
+          id: gameId,
+          // Standardize image properties
+          image_url: game.imageSrc,
+          imageSrc: game.imageSrc
+        });
+      });
+    });
+    
+    return allGames;
+  };
+
   // Fetch games from Supabase with improved error handling
   const fetchGames = async () => {
     setIsLoading(true);
@@ -57,23 +77,62 @@ export const useGames = () => {
           imageSrc: game.image_url || undefined // Maintain backward compatibility
         }));
         
+        // Get all games from categories
+        const allCategoryGames = getAllGamesFromCategories();
+        
+        // Find games that are in categories but not in the database
+        const missingGames = allCategoryGames.filter(categoryGame => 
+          !standardizedGames.some(dbGame => dbGame.id === categoryGame.id)
+        );
+        
+        // Insert missing games
+        if (missingGames.length > 0) {
+          console.log(`Adding ${missingGames.length} missing games to the database`);
+          
+          const insertPromises = missingGames.map(async (game) => {
+            const { error } = await insertGame({
+              id: game.id || generateGameId(game.title),
+              title: game.title,
+              description: game.description,
+              href: game.href,
+              image_url: game.imageSrc
+            });
+            
+            if (error) {
+              console.error(`Error inserting game ${game.title}:`, error);
+              return { success: false, game, error };
+            }
+            return { success: true, game };
+          });
+          
+          await Promise.allSettled(insertPromises);
+          
+          // Fetch updated game list after insertions
+          const { data: updatedData, error: updatedError } = await fetchGamesFromTable();
+          
+          if (updatedError) {
+            console.error("Error fetching updated games:", updatedError);
+          } else if (updatedData) {
+            const updatedGames = updatedData.map(game => ({
+              ...game,
+              id: game.id,
+              title: game.title,
+              description: game.description || '',
+              href: game.href || '#',
+              image_url: game.image_url || undefined,
+              imageSrc: game.image_url || undefined
+            }));
+            
+            setGamesList(updatedGames as Game[]);
+            return;
+          }
+        }
+        
         setGamesList(standardizedGames as Game[]);
       } else {
         console.log("No games found in database, initializing from default data");
-        // If no games in database, initialize from gameCategories
-        const allGames: Game[] = [];
-        gameCategories.forEach(category => {
-          category.games.forEach(game => {
-            const gameId = generateGameId(game.title);
-            allGames.push({
-              ...game,
-              id: gameId,
-              // Standardize image properties
-              image_url: game.imageSrc,
-              imageSrc: game.imageSrc
-            });
-          });
-        });
+        // If no games in database, initialize from all game categories
+        const allGames = getAllGamesFromCategories();
         
         // Insert games into database with better error handling
         const results = await Promise.allSettled(allGames.map(async (game) => {
