@@ -20,11 +20,15 @@ const GameCard = ({
   index 
 }: GameCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   
   // Prioritize image_url from Supabase, fallback to imageSrc
   const imageSource = image_url || imageSrc;
+  
+  // Fix 3: Default fallback image path
+  const fallbackImage = "/public/placeholder.svg";
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -69,11 +73,18 @@ const GameCard = ({
         >
           <div className="flex flex-col h-full p-5">
             <div className="mb-4 bg-gray-100 rounded-lg h-40 overflow-hidden flex items-center justify-center">
-              {imageSource ? (
+              {imageSource && !imageError ? (
                 <img 
                   src={imageSource} 
                   alt={title} 
                   className="w-full h-full object-contain transition-transform duration-700 ease-out"
+                  onError={(e) => {
+                    console.log("Image load error for:", title);
+                    // Fix 2: Set fallback image if original fails
+                    const target = e.target as HTMLImageElement;
+                    target.src = fallbackImage;
+                    setImageError(true);
+                  }}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-gradient-to-br from-gray-100 to-gray-200">

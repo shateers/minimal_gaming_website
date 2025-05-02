@@ -7,6 +7,7 @@ interface Game {
   description: string;
   href: string;
   imageSrc?: string;
+  image_url?: string; // Add support for Supabase image URLs
 }
 
 interface GameCategoryProps {
@@ -32,6 +33,7 @@ const GameCategory = ({ name, games, categoryIndex }: GameCategoryProps) => {
             description={game.description}
             href={game.href}
             imageSrc={game.imageSrc}
+            image_url={game.image_url}
             index={index}
           />
         ))}

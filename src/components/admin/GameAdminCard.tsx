@@ -22,6 +22,9 @@ const GameAdminCard = ({ game, onImageUpdated }: GameAdminCardProps) => {
   const gameImage = game.image_url || game.imageSrc;
   const [imageError, setImageError] = useState(false);
   
+  // Fix 3: Default fallback image path
+  const fallbackImage = "/public/placeholder.svg";
+  
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
       <CardHeader className="p-4">
@@ -38,8 +41,11 @@ const GameAdminCard = ({ game, onImageUpdated }: GameAdminCardProps) => {
               src={gameImage} 
               alt={game.title}
               className="w-full h-full object-cover" 
-              onError={() => {
+              onError={(e) => {
                 console.log("Image load error for:", game.title);
+                // Fix 2: Set fallback image if original fails
+                const target = e.target as HTMLImageElement;
+                target.src = fallbackImage;
                 setImageError(true);
               }}
             />
