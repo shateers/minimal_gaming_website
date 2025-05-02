@@ -145,7 +145,14 @@ const GameManagement = () => {
               <ImageIcon className="h-4 w-4" />
               <AlertTitle>Image Management</AlertTitle>
               <AlertDescription>
-                Image upload is now working properly. You can upload images for each game by clicking the "Update Image" button.
+                To upload images for games, make sure the storage bucket has been properly configured.
+                {gamesError && gamesError.includes("bucket") && (
+                  <div className="mt-2">
+                    <p className="text-sm text-red-600">
+                      Storage bucket configuration issue detected. Please check your Supabase storage settings.
+                    </p>
+                  </div>
+                )}
               </AlertDescription>
             </Alert>
           </div>

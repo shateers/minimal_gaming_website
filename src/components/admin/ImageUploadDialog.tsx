@@ -59,12 +59,21 @@ const ImageUploadDialog = ({ game, onImageUpdated }: ImageUploadDialogProps) => 
     const filePath = `game-images/${fileName}.${fileExt}`;
     
     try {
-      // Upload the file to Supabase Storage - we're using the bucket created by SQL
-      const { error: uploadError, data: uploadData } = await supabase.storage
+      // Check if bucket exists before uploading
+      const { data: buckets } = await supabase.storage.listBuckets();
+      const gameAssetsBucketExists = buckets?.some(bucket => bucket.name === 'game-assets');
+      
+      if (!gameAssetsBucketExists) {
+        throw new Error("Storage bucket not configured. Please contact administrator.");
+      }
+      
+      // Upload the file to Supabase Storage
+      const { error: uploadError } = await supabase.storage
         .from('game-assets')
         .upload(filePath, file, { upsert: true });
         
       if (uploadError) {
+        console.error("Upload error:", uploadError);
         throw uploadError;
       }
       
@@ -155,6 +164,9 @@ const ImageUploadDialog = ({ game, onImageUpdated }: ImageUploadDialogProps) => 
                   src={game.image_url || game.imageSrc} 
                   alt={game.title} 
                   className="w-full h-full object-contain"
+                  onError={() => {
+                    console.log("Image failed to load:", game.title);
+                  }}
                 />
               </div>
             )}

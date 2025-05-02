@@ -38,7 +38,7 @@ const GameAdminCard = ({ game, onImageUpdated }: GameAdminCardProps) => {
               src={gameImage} 
               alt={game.title}
               className="w-full h-full object-cover" 
-              onError={(e) => {
+              onError={() => {
                 console.log("Image load error for:", game.title);
                 setImageError(true);
               }}
@@ -54,7 +54,7 @@ const GameAdminCard = ({ game, onImageUpdated }: GameAdminCardProps) => {
           <p className="text-xs text-muted-foreground truncate w-3/4">
             ID: {game.id}
           </p>
-          {gameImage && (
+          {gameImage && !imageError && (
             <button 
               className="text-xs text-blue-500 hover:underline" 
               onClick={() => window.open(gameImage, '_blank')}

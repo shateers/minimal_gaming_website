@@ -15,40 +15,6 @@ export const useGames = () => {
   const generateGameId = (title: string): string => {
     return title.toLowerCase().replace(/[^a-z0-9]/g, '-');
   };
-  
-  // Initialize storage bucket if it doesn't exist
-  const initializeStorageBucket = async (): Promise<boolean> => {
-    try {
-      // Check if bucket exists first
-      const { data: buckets, error: bucketsError } = await supabase
-        .storage
-        .listBuckets();
-        
-      if (bucketsError) {
-        console.error("Error checking buckets:", bucketsError);
-        return false;
-      }
-      
-      const bucketExists = buckets?.some(bucket => bucket.name === 'game-assets');
-      
-      if (!bucketExists) {
-        const { error: createError } = await supabase.storage.createBucket('game-assets', {
-          public: true,
-          fileSizeLimit: 5242880, // 5MB
-        });
-        
-        if (createError) {
-          console.error("Error creating bucket:", createError);
-          return false;
-        }
-      }
-      
-      return true;
-    } catch (err) {
-      console.error("Unexpected error initializing storage bucket:", err);
-      return false;
-    }
-  };
 
   // Custom function to fetch games from table
   const fetchGamesFromTable = async () => {
@@ -72,9 +38,6 @@ export const useGames = () => {
     setError(null);
     
     try {
-      // Initialize storage bucket for images
-      await initializeStorageBucket();
-      
       // Try to get games from database
       const { data: gamesData, error: gamesError } = await fetchGamesFromTable();
       
