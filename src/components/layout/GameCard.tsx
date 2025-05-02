@@ -1,6 +1,6 @@
-
 import { Link } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
+import { handleImageError, DEFAULT_FALLBACK_IMAGE } from "@/utils/imageUtils";
 
 interface GameCardProps {
   title: string;
@@ -26,9 +26,6 @@ const GameCard = ({
   
   // Prioritize image_url from Supabase, fallback to imageSrc
   const imageSource = image_url || imageSrc;
-  
-  // Fix 3: Default fallback image path
-  const fallbackImage = "/public/placeholder.svg";
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -79,10 +76,7 @@ const GameCard = ({
                   alt={title} 
                   className="w-full h-full object-contain transition-transform duration-700 ease-out"
                   onError={(e) => {
-                    console.log("Image load error for:", title);
-                    // Fix 2: Set fallback image if original fails
-                    const target = e.target as HTMLImageElement;
-                    target.src = fallbackImage;
+                    handleImageError(e);
                     setImageError(true);
                   }}
                 />

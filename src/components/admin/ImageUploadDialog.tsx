@@ -1,9 +1,9 @@
-
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Game } from "@/data/gameTypes";
 import { Upload, AlertCircle } from "lucide-react";
+import { handleImageError, DEFAULT_FALLBACK_IMAGE } from "@/utils/imageUtils";
 import { 
   Dialog,
   DialogContent,
@@ -30,9 +30,6 @@ const ImageUploadDialog = ({ game, onImageUpdated }: ImageUploadDialogProps) => 
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
   
-  // Fix 3: Default fallback image path
-  const fallbackImage = "/public/placeholder.svg";
-
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setError(null);
     
@@ -58,7 +55,6 @@ const ImageUploadDialog = ({ game, onImageUpdated }: ImageUploadDialogProps) => 
     
     const fileExt = file.name.split('.').pop();
     const gameId = game.id || game.title.toLowerCase().replace(/[^a-z0-9]/g, '-');
-    // Fix 3: Rename path to prevent AdBlock interference
     const fileName = `${gameId}-${Date.now()}`;
     const filePath = `assets/images/${fileName}.${fileExt}`;
     
@@ -169,10 +165,7 @@ const ImageUploadDialog = ({ game, onImageUpdated }: ImageUploadDialogProps) => 
                   alt={game.title} 
                   className="w-full h-full object-contain"
                   onError={(e) => {
-                    console.log("Image failed to load:", game.title);
-                    // Fix 2: Set fallback image if original fails
-                    const target = e.target as HTMLImageElement;
-                    target.src = fallbackImage;
+                    handleImageError(e);
                   }}
                 />
               </div>
