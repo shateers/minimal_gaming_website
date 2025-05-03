@@ -1,16 +1,21 @@
-
 import { useEffect, useState } from "react";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useGames } from "@/hooks/useGames";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import GameAdminCard from "@/components/admin/GameAdminCard";
-import { AlertCircle, RefreshCw, Image as ImageIcon } from "lucide-react";
+import { AlertCircle, RefreshCw, Image as ImageIcon, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 
+/**
+ * GameManagement component for admin users to manage game images
+ * 
+ * Note: Some resources on this page may be blocked by ad blockers due to path names
+ * containing terms like "uploads". We've implemented fallbacks to handle these cases.
+ */
 const GameManagement = () => {
   const { isAdmin, isLoading: isCheckingAdmin, error: adminError } = useAdminCheck();
   const { 
@@ -120,6 +125,16 @@ const GameManagement = () => {
               {isLoadingGames ? 'Refreshing...' : 'Refresh Games'}
             </Button>
           </div>
+          
+          {/* Ad blocker notification */}
+          <Alert variant="warning" className="mb-6">
+            <ShieldAlert className="h-4 w-4" />
+            <AlertTitle>AdBlock Notice</AlertTitle>
+            <AlertDescription>
+              Some images may be blocked by ad blockers. We've implemented fallbacks,
+              but for best experience, consider temporarily disabling ad blockers on this page.
+            </AlertDescription>
+          </Alert>
           
           {gamesError && (
             <Alert variant="destructive" className="mb-6">

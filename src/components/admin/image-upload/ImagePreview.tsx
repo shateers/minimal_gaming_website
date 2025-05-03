@@ -1,13 +1,14 @@
 
 import { Game } from "@/data/gameTypes";
-import { handleImageError } from "@/utils/imageUtils";
+import { handleImageError, getSafeImageUrl } from "@/utils/imageUtils";
 
 interface ImagePreviewProps {
   game: Game;
 }
 
 const ImagePreview = ({ game }: ImagePreviewProps) => {
-  const gameImage = game.image_url || game.imageSrc;
+  // Use safe URL to avoid ad blocker issues
+  const gameImage = getSafeImageUrl(game.image_url || game.imageSrc);
   
   if (!gameImage) return null;
   

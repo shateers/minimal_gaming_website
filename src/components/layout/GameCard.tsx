@@ -1,6 +1,7 @@
+
 import { Link } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
-import { handleImageError, DEFAULT_FALLBACK_IMAGE } from "@/utils/imageUtils";
+import { handleImageError, DEFAULT_FALLBACK_IMAGE, getSafeImageUrl } from "@/utils/imageUtils";
 
 interface GameCardProps {
   title: string;
@@ -24,8 +25,8 @@ const GameCard = ({
   const cardRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   
-  // Prioritize image_url from Supabase, fallback to imageSrc
-  const imageSource = image_url || imageSrc;
+  // Prioritize image_url from Supabase, fallback to imageSrc, with ad-blocker protection
+  const imageSource = getSafeImageUrl(image_url || imageSrc);
 
   useEffect(() => {
     const observer = new IntersectionObserver(

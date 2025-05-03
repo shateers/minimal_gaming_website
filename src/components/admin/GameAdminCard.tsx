@@ -1,7 +1,7 @@
 
 import { Game } from "@/data/gameTypes";
 import { ImageIcon } from "lucide-react";
-import { handleImageError } from "@/utils/imageUtils";
+import { handleImageError, getSafeImageUrl } from "@/utils/imageUtils";
 import { 
   Card,
   CardContent,
@@ -20,7 +20,7 @@ interface GameAdminCardProps {
 
 const GameAdminCard = ({ game, onImageUpdated }: GameAdminCardProps) => {
   // Use image_url with fallback to imageSrc for consistent image handling
-  const gameImage = game.image_url || game.imageSrc;
+  const gameImage = getSafeImageUrl(game.image_url || game.imageSrc);
   const [imageError, setImageError] = useState(false);
   
   return (
