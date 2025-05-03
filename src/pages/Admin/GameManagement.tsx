@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useGames } from "@/hooks/useGames";
@@ -31,10 +32,11 @@ const GameManagement = () => {
   useEffect(() => {
     document.title = "Game Management - Shateer Games Admin";
     
-    if (isAdmin) {
+    // Only fetch games if the admin check has completed and user is an admin
+    if (isAdmin && !isCheckingAdmin) {
       fetchGames();
     }
-  }, [isAdmin, fetchGames, retryCount]);
+  }, [isAdmin, fetchGames, retryCount, isCheckingAdmin]);
 
   const handleRetry = () => {
     setRetryCount(prev => prev + 1);
@@ -52,6 +54,7 @@ const GameManagement = () => {
     });
   };
 
+  // Show loading state while checking admin status
   if (isCheckingAdmin) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -73,7 +76,8 @@ const GameManagement = () => {
     );
   }
 
-  if (!isAdmin) {
+  // Show access denied page if user is not admin (and admin check is complete)
+  if (isAdmin === false) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />

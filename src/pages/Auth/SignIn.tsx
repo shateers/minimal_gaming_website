@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -37,6 +36,9 @@ const SignIn = () => {
               throw signUpError;
             }
             
+            // Wait a moment to ensure the user is created and auth hooks are triggered
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
             // Then update their profile to be an admin
             if (data.user) {
               const { error: profileError } = await supabase
@@ -59,6 +61,9 @@ const SignIn = () => {
           }
         }
         
+        // Add delay before checking profile to ensure DB has updated
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         // Check if the user is an admin
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
@@ -71,7 +76,7 @@ const SignIn = () => {
         }
 
         // Update the profile to ensure is_admin is true
-        if (profileData && !profileData.is_admin) {
+        if (!profileData || profileData.is_admin !== true) {
           const { error: updateError } = await supabase
             .from('profiles')
             .update({ is_admin: true })
@@ -80,6 +85,9 @@ const SignIn = () => {
           if (updateError) {
             throw updateError;
           }
+          
+          // Wait for update to complete before proceeding
+          await new Promise(resolve => setTimeout(resolve, 500));
         }
         
         toast({
@@ -87,7 +95,10 @@ const SignIn = () => {
           description: "You have successfully signed in.",
         });
         
-        navigate("/admin/games");
+        // Add a small delay before navigation to ensure state is updated
+        setTimeout(() => {
+          navigate("/admin/games");
+        }, 500);
         return;
       }
       
@@ -103,7 +114,10 @@ const SignIn = () => {
         description: "Welcome back to Shateer Games.",
       });
       
-      navigate("/");
+      // Add a small delay before navigation
+      setTimeout(() => {
+        navigate("/");
+      }, 500);
     } catch (error: any) {
       toast({
         title: "Error signing in",
