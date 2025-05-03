@@ -1,8 +1,7 @@
 
 import { Game } from "@/data/gameTypes";
 import { ImageIcon } from "lucide-react";
-import ImageUploadDialog from "./ImageUploadDialog";
-import { handleImageError, DEFAULT_FALLBACK_IMAGE } from "@/utils/imageUtils";
+import { handleImageError } from "@/utils/imageUtils";
 import { 
   Card,
   CardContent,
@@ -12,6 +11,7 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { useState } from "react";
+import ImageUploadDialog from "./image-upload/ImageUploadDialog";
 
 interface GameAdminCardProps {
   game: Game;
