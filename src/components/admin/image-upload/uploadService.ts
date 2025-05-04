@@ -3,9 +3,20 @@ import { supabase } from "@/integrations/supabase/client";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-export interface UploadValidationResult {
+/**
+ * Types for image validation and upload results
+ */
+export interface ValidationResult {
   isValid: boolean;
   error?: string;
+}
+
+export interface UploadResult {
+  publicUrl: string;
+}
+
+export interface UploadError {
+  error: Error;
 }
 
 /**
@@ -13,7 +24,7 @@ export interface UploadValidationResult {
  * @param file File to validate
  * @returns Validation result with error message if invalid
  */
-export const validateImageFile = (file: File): UploadValidationResult => {
+export const validateImageFile = (file: File): ValidationResult => {
   // Validate file size
   if (file.size > MAX_FILE_SIZE) {
     return {
@@ -34,8 +45,7 @@ export const validateImageFile = (file: File): UploadValidationResult => {
 };
 
 /**
- * Safe bucket operation check to prevent errors when buckets don't exist
- * @returns Promise resolving to whether the game-assets bucket exists
+ * Checks if the game-assets storage bucket exists
  */
 export const checkGameAssetsBucket = async (): Promise<boolean> => {
   try {
@@ -54,22 +64,29 @@ export const checkGameAssetsBucket = async (): Promise<boolean> => {
 };
 
 /**
- * Uploads a game image to Supabase storage
- * @param file File to upload
- * @param gameId Game ID
- * @param gameTitle Game title (used if ID is not available)
- * @returns Object with public URL or error
+ * Generates a filename for the uploaded game image
+ */
+const generateImageFilename = (
+  gameId: string,
+  gameTitle: string,
+  fileExt: string
+): string => {
+  const normalizedGameId = gameId || gameTitle.toLowerCase().replace(/[^a-z0-9]/g, '-');
+  const timestamp = Date.now();
+  return `assets/images/${normalizedGameId}-${timestamp}.${fileExt}`;
+};
+
+/**
+ * Uploads an image file to Supabase storage
  */
 export const uploadGameImage = async (
   file: File,
   gameId: string,
   gameTitle: string
-): Promise<{ publicUrl: string } | { error: Error }> => {
+): Promise<UploadResult | UploadError> => {
   try {
-    const normalizedGameId = gameId || gameTitle.toLowerCase().replace(/[^a-z0-9]/g, '-');
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${normalizedGameId}-${Date.now()}`;
-    const filePath = `assets/images/${fileName}.${fileExt}`;
+    const fileExt = file.name.split('.').pop() || 'png';
+    const filePath = generateImageFilename(gameId, gameTitle, fileExt);
     
     // Check if bucket exists before uploading
     const bucketExists = await checkGameAssetsBucket();
@@ -107,18 +124,18 @@ export const uploadGameImage = async (
 
 /**
  * Updates the game image URL in the database
- * @param gameId Game ID to update
- * @param imageUrl New image URL
- * @returns Supabase response
  */
 export const updateGameImageInDatabase = async (gameId: string, imageUrl: string) => {
-  try {
-    return await supabase
-      .from('games')
-      .update({ image_url: imageUrl })
-      .eq('id', gameId);
-  } catch (error) {
+  const { data, error } = await supabase
+    .from('games')
+    .update({ image_url: imageUrl })
+    .eq('id', gameId)
+    .select();
+    
+  if (error) {
     console.error("Database update error:", error);
     throw error;
   }
+  
+  return { success: !!data, data };
 };

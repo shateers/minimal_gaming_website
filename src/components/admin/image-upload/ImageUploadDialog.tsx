@@ -4,7 +4,6 @@ import { Game } from "@/data/gameTypes";
 import { useToast } from "@/components/ui/use-toast";
 import { updateGameImage as updateGameImageService } from "@/services/gameService";
 import { Upload, AlertCircle } from "lucide-react";
-import { handleImageError, getSafeImageUrl } from "@/utils/imageUtils";
 import { 
   Dialog,
   DialogContent,
@@ -18,7 +17,11 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import ImagePreview from "./ImagePreview";
 import UploadForm from "./UploadForm";
-import { validateImageFile, uploadGameImage } from "./uploadService";
+import { 
+  validateImageFile, 
+  uploadGameImage,
+  updateGameImageInDatabase
+} from "./uploadService";
 
 interface ImageUploadDialogProps {
   game: Game;
@@ -54,11 +57,7 @@ const ImageUploadDialog = ({ game, onImageUpdated }: ImageUploadDialogProps) => 
       }
       
       // Update the game image in the database
-      const { success, error: updateError } = await updateGameImageService(gameId, uploadResult.publicUrl);
-      
-      if (!success) {
-        throw new Error(updateError || "Failed to update game record");
-      }
+      await updateGameImageInDatabase(gameId, uploadResult.publicUrl);
       
       toast({
         title: "Image Updated",
