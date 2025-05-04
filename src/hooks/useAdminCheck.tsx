@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
 export const useAdminCheck = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -17,11 +17,13 @@ export const useAdminCheck = () => {
   // Use refs to track navigation and prevent infinite loops
   const hasNavigatedRef = useRef(false);
   const checkAttemptedRef = useRef(false);
+  const timeoutIdRef = useRef<number | null>(null);
   
   // Use the cached admin value from AuthContext if available
   useEffect(() => {
     if (profile !== null) {
       setIsAdmin(profile.is_admin === true);
+      if (!isLoading) return; // Don't set loading to false if we're still checking other things
       setIsLoading(false);
     }
   }, [profile]);
@@ -40,17 +42,24 @@ export const useAdminCheck = () => {
 
       if (!user) {
         // Only navigate if we haven't done so already and we're not on a sign-in page
-        if (!hasNavigatedRef.current && !location.pathname.includes('signin')) {
+        if (!hasNavigatedRef.current && 
+            !location.pathname.includes('signin') && 
+            !location.pathname.includes('signup')) {
           hasNavigatedRef.current = true;
           navigate('/signin');
         }
         setIsLoading(false);
+        setIsAdmin(false);
         return;
       }
       
       try {
         // Add timeout to prevent infinite loading
-        const timeoutId = setTimeout(() => {
+        if (timeoutIdRef.current) {
+          clearTimeout(timeoutIdRef.current);
+        }
+        
+        timeoutIdRef.current = window.setTimeout(() => {
           if (isLoading) {
             setIsLoading(false);
             setError("Connection timeout. Please try again.");
@@ -62,29 +71,44 @@ export const useAdminCheck = () => {
           }
         }, 10000); // 10 second timeout
         
+        // First check if the profile is already loaded with admin status
+        if (profile) {
+          setIsAdmin(profile.is_admin === true);
+          clearTimeout(timeoutIdRef.current);
+          timeoutIdRef.current = null;
+          setIsLoading(false);
+          setError(null);
+          return;
+        }
+        
+        // If not, fetch from database
         const { data, error } = await supabase
           .from('profiles')
           .select('is_admin')
           .eq('id', user.id)
           .single();
           
-        clearTimeout(timeoutId);
+        clearTimeout(timeoutIdRef.current);
+        timeoutIdRef.current = null;
         
         if (error) {
           throw error;
         }
         
         if (!data || data.is_admin !== true) {
-          toast({
-            title: "Access Denied",
-            description: "You don't have admin privileges",
-            variant: "destructive",
-          });
-          
-          // Only navigate if we haven't done so already and we're not already on the home page
-          if (!hasNavigatedRef.current && location.pathname !== '/') {
-            hasNavigatedRef.current = true;
-            navigate('/');
+          // Only show toast if we're on an admin page
+          if (location.pathname.includes('/admin/') && !location.pathname.includes('/admin/signin')) {
+            toast({
+              title: "Access Denied",
+              description: "You don't have admin privileges",
+              variant: "destructive",
+            });
+            
+            // Only navigate if we haven't done so already
+            if (!hasNavigatedRef.current) {
+              hasNavigatedRef.current = true;
+              navigate('/');
+            }
           }
           
           setIsAdmin(false);
@@ -92,6 +116,8 @@ export const useAdminCheck = () => {
         }
         
         setIsAdmin(true);
+        // Call refreshProfile to update the AuthContext with the admin status
+        refreshProfile();
         setError(null);
       } catch (error: any) {
         setError(error.message);
@@ -114,12 +140,18 @@ export const useAdminCheck = () => {
     
     checkAdmin();
     
-    // Reset navigation flag when leaving the component
     return () => {
+      // Clean up timeout
+      if (timeoutIdRef.current) {
+        clearTimeout(timeoutIdRef.current);
+        timeoutIdRef.current = null;
+      }
+      
+      // Reset navigation flag when leaving the component
       hasNavigatedRef.current = false;
       checkAttemptedRef.current = false;
     };
-  }, [user, navigate, toast, location.pathname, isAdmin]);
+  }, [user, navigate, toast, location.pathname, isAdmin, profile, refreshProfile]);
 
   return { isAdmin, isLoading, error };
 };

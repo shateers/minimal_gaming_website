@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { Progress } from "@/components/ui/progress";
 
 interface AdminCheckerProps {
   children: ReactNode;
@@ -25,6 +26,9 @@ const AdminChecker = ({ children }: AdminCheckerProps) => {
           <div className="max-w-6xl mx-auto">
             <div className="flex flex-col items-center justify-center h-64">
               <div className="text-xl font-semibold mb-4">Checking admin privileges...</div>
+              <div className="w-64 mb-4">
+                <Progress value={75} className="h-2 animate-pulse" />
+              </div>
               <div className="flex space-x-2">
                 <div className="h-3 w-3 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
                 <div className="h-3 w-3 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"></div>
