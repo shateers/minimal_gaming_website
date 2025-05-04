@@ -19,14 +19,6 @@ const UploadForm = ({ isUploading, error, onFileSelect }: UploadFormProps) => {
   
   return (
     <div className="flex flex-col items-center gap-4">
-      {error && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-      
       <Input
         id="image"
         type="file"

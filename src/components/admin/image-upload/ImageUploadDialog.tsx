@@ -1,8 +1,10 @@
 
 import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
 import { Game } from "@/data/gameTypes";
-import { Upload } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { updateGameImage as updateGameImageService } from "@/services/gameService";
+import { Upload, AlertCircle } from "lucide-react";
+import { handleImageError, getSafeImageUrl } from "@/utils/imageUtils";
 import { 
   Dialog,
   DialogContent,
@@ -13,9 +15,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import ImagePreview from "./ImagePreview";
 import UploadForm from "./UploadForm";
-import { validateImageFile, uploadGameImage, updateGameImageInDatabase } from "./uploadService";
+import { validateImageFile, uploadGameImage } from "./uploadService";
 
 interface ImageUploadDialogProps {
   game: Game;
@@ -40,23 +43,21 @@ const ImageUploadDialog = ({ game, onImageUpdated }: ImageUploadDialogProps) => 
     
     setIsUploading(true);
     
+    const gameId = game.id || game.title.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    
     try {
-      // Upload the image
-      const result = await uploadGameImage(file, game.id, game.title);
+      // Upload the file
+      const uploadResult = await uploadGameImage(file, gameId, game.title);
       
-      if ('error' in result) {
-        throw result.error;
+      if ('error' in uploadResult) {
+        throw uploadResult.error;
       }
       
-      // Update game image in database
-      const { error: updateError } = await updateGameImageInDatabase(
-        game.id, 
-        result.publicUrl
-      );
-        
-      if (updateError) {
-        console.error("Error updating game record:", updateError);
-        throw updateError;
+      // Update the game image in the database
+      const { success, error: updateError } = await updateGameImageService(gameId, uploadResult.publicUrl);
+      
+      if (!success) {
+        throw new Error(updateError || "Failed to update game record");
       }
       
       toast({
@@ -65,7 +66,7 @@ const ImageUploadDialog = ({ game, onImageUpdated }: ImageUploadDialogProps) => 
       });
       
       // Call the callback to update the parent component
-      onImageUpdated(game.id, result.publicUrl);
+      onImageUpdated(gameId, uploadResult.publicUrl);
       
       // Close the dialog after successful upload
       setIsOpen(false);
@@ -107,12 +108,22 @@ const ImageUploadDialog = ({ game, onImageUpdated }: ImageUploadDialogProps) => 
         </DialogHeader>
         
         <div className="grid gap-4 py-4">
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>
+                {error}
+              </AlertDescription>
+            </Alert>
+          )}
+          
           <div className="flex flex-col items-center gap-4">
             <ImagePreview game={game} />
             <UploadForm 
-              isUploading={isUploading} 
-              error={error} 
-              onFileSelect={handleFileSelect} 
+              isUploading={isUploading}
+              error={error}
+              onFileSelect={handleFileSelect}
             />
           </div>
         </div>

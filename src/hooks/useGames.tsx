@@ -1,56 +1,21 @@
 
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Game } from "@/data/gameTypes";
-import { gameCategories } from "@/data/gameCategories";
+import { 
+  fetchGamesFromTable, 
+  insertGame, 
+  updateGameImage, 
+  getAllGamesFromCategories, 
+  generateGameId 
+} from "@/services/gameService";
+import { standardizeGames, findMissingGames } from "@/utils/gameUtils";
 
 export const useGames = () => {
   const [gamesList, setGamesList] = useState<Game[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-
-  // Generate a consistent ID based on game title
-  const generateGameId = (title: string): string => {
-    return title.toLowerCase().replace(/[^a-z0-9]/g, '-');
-  };
-
-  // Custom function to fetch games from table
-  const fetchGamesFromTable = async () => {
-    return await supabase.from('games').select('*');
-  };
-  
-  // Custom function to insert game with better error handling
-  const insertGame = async (game: {
-    id: string;
-    title: string;
-    description: string;
-    href: string;
-    image_url?: string;
-  }) => {
-    return await supabase.from('games').upsert(game);
-  };
-
-  // Get all games from all categories
-  const getAllGamesFromCategories = (): Game[] => {
-    const allGames: Game[] = [];
-    
-    gameCategories.forEach(category => {
-      category.games.forEach(game => {
-        const gameId = generateGameId(game.title);
-        allGames.push({
-          ...game,
-          id: gameId,
-          // Standardize image properties
-          image_url: game.imageSrc,
-          imageSrc: game.imageSrc
-        });
-      });
-    });
-    
-    return allGames;
-  };
 
   // Fetch games from Supabase with improved error handling
   const fetchGames = async () => {
@@ -67,23 +32,13 @@ export const useGames = () => {
       
       if (gamesData && gamesData.length > 0) {
         // Standardize game data structure
-        const standardizedGames = gamesData.map(game => ({
-          ...game,
-          id: game.id,
-          title: game.title,
-          description: game.description || '',
-          href: game.href || '#',
-          image_url: game.image_url || undefined,
-          imageSrc: game.image_url || undefined // Maintain backward compatibility
-        }));
+        const standardizedGames = standardizeGames(gamesData);
         
         // Get all games from categories
         const allCategoryGames = getAllGamesFromCategories();
         
         // Find games that are in categories but not in the database
-        const missingGames = allCategoryGames.filter(categoryGame => 
-          !standardizedGames.some(dbGame => dbGame.id === categoryGame.id)
-        );
+        const missingGames = findMissingGames(standardizedGames, allCategoryGames);
         
         // Insert missing games
         if (missingGames.length > 0) {
@@ -113,22 +68,12 @@ export const useGames = () => {
           if (updatedError) {
             console.error("Error fetching updated games:", updatedError);
           } else if (updatedData) {
-            const updatedGames = updatedData.map(game => ({
-              ...game,
-              id: game.id,
-              title: game.title,
-              description: game.description || '',
-              href: game.href || '#',
-              image_url: game.image_url || undefined,
-              imageSrc: game.image_url || undefined
-            }));
-            
-            setGamesList(updatedGames as Game[]);
+            setGamesList(standardizeGames(updatedData));
             return;
           }
         }
         
-        setGamesList(standardizedGames as Game[]);
+        setGamesList(standardizedGames);
       } else {
         console.log("No games found in database, initializing from default data");
         // If no games in database, initialize from all game categories
@@ -172,30 +117,6 @@ export const useGames = () => {
       console.error("Game loading error:", err);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  // Update game image with improved error handling
-  const updateGameImage = async (gameId: string, imageUrl: string) => {
-    try {
-      const { error } = await supabase
-        .from('games')
-        .update({ image_url: imageUrl })
-        .eq('id', gameId);
-        
-      if (error) {
-        throw error;
-      }
-      
-      return { success: true };
-    } catch (err: any) {
-      const errorMsg = err.message || "Failed to update game image";
-      toast({
-        title: "Image Update Error",
-        description: errorMsg,
-        variant: "destructive",
-      });
-      return { success: false, error: errorMsg };
     }
   };
 
