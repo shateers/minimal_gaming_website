@@ -1,4 +1,3 @@
-
 import { Game } from "../gameTypes";
 
 export const featuredGames: Game[] = [
@@ -78,7 +77,7 @@ export const featuredGames: Game[] = [
     title: "Flappy Bird",
     description: "Navigate a bird through gaps between pipes by tapping or using the spacebar to keep it airborne.",
     href: "/games/flappy-bird",
-    imageSrc: "/lovable-uploads/9d7fb8e-e6ac-44ad-be50-f34ca8ec1217.png"
+    imageSrc: "/lovable-uploads/39d7fb8e-e6ac-44ad-be50-f34ca8ec1217.png"
   },
   {
     title: "Minesweeper",

@@ -3,9 +3,24 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { Bird } from "lucide-react";
+import { useFlappyBirdGame } from "@/hooks/games/flappy-bird/useFlappyBirdGame";
+import GameCanvas from "@/components/games/flappy-bird/GameCanvas";
+import GameControls from "@/components/games/flappy-bird/GameControls";
+import GameStats from "@/components/games/flappy-bird/GameStats";
+import Instructions from "@/components/games/flappy-bird/Instructions";
 
 const FlappyBird = () => {
+  const {
+    gameState,
+    score,
+    highScore,
+    startGame,
+    restartGame,
+    jumpBird,
+    updateScore,
+    handleGameOver
+  } = useFlappyBirdGame();
+
   useEffect(() => {
     document.title = "Flappy Bird - Shateer Games";
     
@@ -14,13 +29,18 @@ const FlappyBird = () => {
       if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(e.key)) {
         e.preventDefault();
       }
+      
+      // Make bird jump when space is pressed
+      if (e.key === " ") {
+        jumpBird();
+      }
     };
     
     window.addEventListener("keydown", preventDefaultScroll);
     return () => {
       window.removeEventListener("keydown", preventDefaultScroll);
     };
-  }, []);
+  }, [jumpBird]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -29,7 +49,6 @@ const FlappyBird = () => {
       <main className="flex-grow container max-w-5xl mx-auto pt-24 px-4 pb-16">
         <div className="text-center mb-8 animate-fade-in">
           <div className="flex justify-center items-center gap-3 mb-2">
-            <Bird className="h-8 w-8 text-yellow-500" />
             <h1 className="text-3xl font-bold">Flappy Bird</h1>
           </div>
           <p className="text-muted-foreground">
@@ -46,32 +65,27 @@ const FlappyBird = () => {
           </Link>
         </div>
         
-        <div className="bg-white rounded-xl shadow-md p-4 md:p-6 flex justify-center">
-          <div className="w-full max-w-md aspect-[1/1.5] overflow-hidden">
-            <iframe
-              src="https://flappybird.io/embed"
-              title="Flappy Bird"
-              className="w-full h-full border-0"
-              allowFullScreen
-              allow="fullscreen"
-              sandbox="allow-same-origin allow-scripts"
-            ></iframe>
-          </div>
-        </div>
+        <GameStats 
+          score={score}
+          highScore={highScore}
+          gameState={gameState}
+        />
         
-        <div className="mt-8 bg-secondary/30 p-6 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4">How to Play</h2>
-          <p className="mb-3">
-            Flappy Bird is a side-scrolling game where you control a bird, attempting to fly between green pipes without hitting them.
-          </p>
-          <ul className="list-disc pl-5 space-y-2">
-            <li>Click, tap, or press <span className="font-medium">Space</span> to make the bird flap its wings and gain height</li>
-            <li>Carefully time your flaps to navigate through the gaps between pipes</li>
-            <li>Each successful pipe passage awards one point</li>
-            <li>The game ends if you hit a pipe or the ground</li>
-            <li>Try to beat your high score with each attempt!</li>
-          </ul>
-        </div>
+        <GameControls
+          gameState={gameState}
+          onStart={startGame}
+          onRestart={restartGame}
+          onJump={jumpBird}
+        />
+        
+        <GameCanvas
+          gameState={gameState}
+          score={score}
+          onJump={jumpBird}
+          onGameOver={handleGameOver}
+        />
+        
+        <Instructions />
       </main>
       
       <Footer />
