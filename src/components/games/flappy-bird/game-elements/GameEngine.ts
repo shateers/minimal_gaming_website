@@ -1,191 +1,145 @@
-import { GameState } from "../../../../hooks/games/flappy-bird/useFlappyBirdGame";
-import { GameRenderer } from "./GameRenderer";
+
+import { GameState as GameStateType } from "../../../../hooks/games/flappy-bird/useFlappyBirdGame";
 import { GameStateManager } from "./GameState";
+import { GameRenderer } from "./GameRenderer";
 
 export class GameEngine {
-  canvas: HTMLCanvasElement;
-  ctx: CanvasRenderingContext2D;
-  renderer: GameRenderer;
-  stateManager: GameStateManager;
-  animationFrameId: number;
-  
-  onJump: () => void;
-  onGameOver: () => void;
-  restartTimer: number | null;
-  
+  private canvas: HTMLCanvasElement;
+  private ctx: CanvasRenderingContext2D;
+  private gameState: GameStateManager;
+  private renderer: GameRenderer;
+  private animationFrameId: number | null = null;
+  private onJump: () => void;
+  private onGameOver: () => void;
+  private onScoreUpdate: () => void;
+  private lastTimestamp: number = 0;
+
   constructor(
-    canvas: HTMLCanvasElement, 
-    gameState: GameState, 
-    score: number, 
-    onJump: () => void, 
+    canvas: HTMLCanvasElement,
+    initialState: GameStateType,
+    initialScore: number,
+    onJump: () => void,
     onGameOver: () => void
   ) {
     this.canvas = canvas;
-    this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-    
-    // Set canvas dimensions to 800x500
-    this.canvas.width = 800;
-    this.canvas.height = 500;
-    
-    // Initialize renderer and state manager
-    this.renderer = new GameRenderer(this.ctx, this.canvas.width, this.canvas.height);
-    this.stateManager = new GameStateManager(
-      this.canvas.width, 
-      this.canvas.height,
-      gameState,
-      score
-    );
-    
+    this.ctx = canvas.getContext('2d')!;
     this.onJump = onJump;
     this.onGameOver = onGameOver;
-    this.animationFrameId = 0;
-    this.restartTimer = null;
-    
-    // Set up event listeners
-    this.setupEventListeners();
-    
-    // Start game loop
-    this.gameLoop();
+    this.onScoreUpdate = () => {};
+
+    // Set canvas dimensions - fixed size for consistency
+    this.canvas.width = 360;
+    this.canvas.height = 640;
+
+    // Initialize game state and renderer
+    this.gameState = new GameStateManager(this.canvas.width, this.canvas.height, initialState, initialScore);
+    this.renderer = new GameRenderer(this.ctx, this.canvas.width, this.canvas.height);
+
+    // Start the game loop
+    this.startGameLoop();
+
+    // Add click event listener to canvas
+    this.canvas.addEventListener('click', this.handleCanvasClick);
   }
-  
-  setupEventListeners() {
-    const handleCanvasClick = (e: MouseEvent) => {
-      e.preventDefault(); // Prevent any default behavior
-      
-      if (this.stateManager.gameState === "waiting" && !this.stateManager.isCountingDown) {
-        this.onJump(); // This will start the game via the parent component
-      } else if (this.stateManager.gameState === "playing") {
-        this.stateManager.bird.jump();
-      }
-    };
-    
-    this.canvas.addEventListener("click", handleCanvasClick);
-    
-    // Prevent scrolling when clicking on canvas
-    this.canvas.addEventListener("mousedown", (e) => {
-      e.preventDefault();
-    });
-  }
-  
-  cleanupEventListeners() {
-    // Remove event listeners when cleaning up
-    this.canvas.replaceWith(this.canvas.cloneNode(true));
-  }
-  
-  updateGameState(newGameState: GameState) {
-    // If transitioning from gameover to waiting, set a timer
-    if (this.stateManager.gameState === "gameover" && newGameState === "waiting") {
-      this.startRestartTimer();
+
+  private handleCanvasClick = () => {
+    if (this.gameState.gameState === "playing") {
+      this.onJump();
+    } else if (this.gameState.gameState === "waiting") {
+      this.onJump();
     }
-    this.stateManager.updateGameState(newGameState);
-  }
-  
-  updateScore(newScore: number) {
-    this.stateManager.updateScore(newScore);
-  }
-  
-  startRestartTimer() {
-    if (this.restartTimer) {
-      clearTimeout(this.restartTimer);
-    }
-    
-    // Set a flag to indicate counting down
-    this.stateManager.isCountingDown = true;
-    this.stateManager.countdownValue = 3;
-    
-    // Reset bird position immediately when timer starts
-    this.stateManager.resetBirdPosition();
-    
-    const countDown = () => {
-      if (this.stateManager.countdownValue > 1) {
-        this.stateManager.countdownValue--;
-        this.restartTimer = window.setTimeout(countDown, 1000);
-      } else {
-        this.stateManager.isCountingDown = false;
-        this.restartTimer = null;
-      }
-    };
-    
-    // Start countdown
-    this.restartTimer = window.setTimeout(countDown, 1000);
-  }
-  
-  gameLoop = () => {
-    // Increment frame count
-    this.stateManager.incrementFrame();
-    
-    // Clear canvas
-    this.renderer.clearCanvas();
-    
-    if (this.stateManager.gameState === "waiting") {
-      this.renderWaitingState();
-    } else if (this.stateManager.gameState === "playing") {
-      this.renderPlayingState();
-    } else if (this.stateManager.gameState === "gameover") {
-      this.renderGameOverState();
-    }
-    
-    this.animationFrameId = requestAnimationFrame(this.gameLoop);
   };
-  
-  renderWaitingState() {
-    this.renderer.renderBackground(this.stateManager.clouds);
-    this.renderer.renderBird(this.stateManager.bird);
-    
-    // Show countdown or "Click to start" based on state
-    if (this.stateManager.isCountingDown) {
-      this.renderer.renderCountdown(this.stateManager.countdownValue);
-    } else {
-      this.renderer.renderWaitingScreen();
-    }
+
+  private startGameLoop() {
+    const loop = (timestamp: number) => {
+      // Calculate delta time
+      const deltaTime = timestamp - (this.lastTimestamp || timestamp);
+      this.lastTimestamp = timestamp;
+
+      // Clear canvas
+      this.renderer.clearCanvas();
+
+      // Update and render game based on current state
+      if (this.gameState.gameState === "waiting") {
+        this.updateWaitingState();
+      } else if (this.gameState.gameState === "playing") {
+        this.updatePlayingState(deltaTime);
+      } else if (this.gameState.gameState === "gameover") {
+        this.updateGameOverState();
+      }
+
+      // Continue the game loop
+      this.animationFrameId = requestAnimationFrame(loop);
+    };
+
+    // Start the loop
+    this.animationFrameId = requestAnimationFrame(loop);
   }
-  
-  renderPlayingState() {
-    // Add and update clouds
-    this.stateManager.addCloud();
-    this.stateManager.updateClouds();
+
+  private updateWaitingState() {
+    // Update clouds
+    this.gameState.incrementFrame();
+    this.gameState.addCloud();
+    this.gameState.updateClouds();
+
+    // Render everything
+    this.renderer.renderBackground(this.gameState.clouds);
+    this.renderer.renderBird(this.gameState.bird);
+    this.renderer.renderWaitingScreen();
+  }
+
+  private updatePlayingState(deltaTime: number) {
+    // Update game elements
+    this.gameState.incrementFrame();
+    this.gameState.addCloud();
+    this.gameState.updateClouds();
     
-    // Draw background with clouds
-    this.renderer.renderBackground(this.stateManager.clouds);
+    // Update bird and check for collisions
+    this.gameState.updateBird(this.onGameOver);
     
-    // Update and check pipes
-    const scoreIncremented = this.stateManager.updatePipes(this.onJump);
-    this.renderer.renderPipes(this.stateManager.pipes);
+    // Update pipes and check for score update
+    const scoreIncremented = this.gameState.updatePipes(this.onJump);
+    if (scoreIncremented) {
+      this.onScoreUpdate();
+    }
     
     // Check for collisions
-    if (this.stateManager.checkCollisions(this.onGameOver)) {
+    const hasCollided = this.gameState.checkCollisions(this.onGameOver);
+    if (hasCollided) {
       this.onGameOver();
       return;
     }
     
-    // Update and draw bird
-    this.stateManager.updateBird(this.onGameOver);
-    this.renderer.renderBird(this.stateManager.bird);
-    
-    // Draw score
-    this.renderer.renderScore(this.stateManager.score);
-    
-    // Call score update in parent component if needed
-    if (scoreIncremented) {
-      this.onJump(); // Trigger state update in parent
-    }
+    // Render everything
+    this.renderer.renderBackground(this.gameState.clouds);
+    this.renderer.renderPipes(this.gameState.pipes);
+    this.renderer.renderBird(this.gameState.bird);
+    this.renderer.renderScore(this.gameState.score);
   }
-  
-  renderGameOverState() {
-    // Draw game elements in background
-    this.renderer.renderBackground(this.stateManager.clouds);
-    this.renderer.renderPipes(this.stateManager.pipes);
-    this.renderer.renderBird(this.stateManager.bird);
-    
-    // Draw game over overlay
-    this.renderer.renderGameOverScreen(this.stateManager.score);
+
+  private updateGameOverState() {
+    // Render final state
+    this.renderer.renderBackground(this.gameState.clouds);
+    this.renderer.renderPipes(this.gameState.pipes);
+    this.renderer.renderBird(this.gameState.bird);
+    this.renderer.renderGameOverScreen(this.gameState.score);
   }
-  
+
+  updateGameState(newState: GameStateType) {
+    this.gameState.updateGameState(newState);
+  }
+
+  updateScore(newScore: number) {
+    this.gameState.updateScore(newScore);
+  }
+
   cleanup() {
-    if (this.restartTimer) {
-      clearTimeout(this.restartTimer);
+    // Cancel animation frame
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
     }
-    cancelAnimationFrame(this.animationFrameId);
-    this.cleanupEventListeners();
+    
+    // Remove event listeners
+    this.canvas.removeEventListener('click', this.handleCanvasClick);
   }
 }

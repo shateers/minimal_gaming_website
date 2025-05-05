@@ -1,3 +1,4 @@
+
 import { GameState as GameStateType } from "../../../../hooks/games/flappy-bird/useFlappyBirdGame";
 import { BirdClass } from "./Bird";
 import { PipeClass } from "./Pipe";
