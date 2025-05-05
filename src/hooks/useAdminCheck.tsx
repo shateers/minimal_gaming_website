@@ -23,7 +23,6 @@ export const useAdminCheck = () => {
   useEffect(() => {
     if (profile !== null) {
       setIsAdmin(profile.is_admin === true);
-      if (!isLoading) return; // Don't set loading to false if we're still checking other things
       setIsLoading(false);
     }
   }, [profile]);
@@ -151,7 +150,7 @@ export const useAdminCheck = () => {
       hasNavigatedRef.current = false;
       checkAttemptedRef.current = false;
     };
-  }, [user, navigate, toast, location.pathname, isAdmin, profile, refreshProfile]);
+  }, [user, navigate, toast, location.pathname, refreshProfile]);
 
   return { isAdmin, isLoading, error };
 };

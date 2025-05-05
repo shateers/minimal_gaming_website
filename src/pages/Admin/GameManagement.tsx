@@ -30,8 +30,10 @@ const GameManagement = () => {
 
   useEffect(() => {
     document.title = "Game Management - Shateer Games Admin";
+    // Only fetch games once when component mounts or when retry is pressed
     fetchGames();
-  }, [fetchGames, retryCount]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [retryCount]);
 
   const handleRetry = () => {
     setRetryCount(prev => prev + 1);

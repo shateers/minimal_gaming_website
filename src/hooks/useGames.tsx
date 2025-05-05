@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Game } from "@/data/gameTypes";
 import { 
@@ -18,7 +18,7 @@ export const useGames = () => {
   const { toast } = useToast();
 
   // Fetch games from Supabase with improved error handling
-  const fetchGames = async () => {
+  const fetchGames = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     
@@ -69,6 +69,7 @@ export const useGames = () => {
             console.error("Error fetching updated games:", updatedError);
           } else if (updatedData) {
             setGamesList(standardizeGames(updatedData));
+            setIsLoading(false);
             return;
           }
         }
@@ -118,10 +119,10 @@ export const useGames = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   // Update games list after image upload with consistent image properties
-  const updateGameInList = (gameId: string, imageUrl: string) => {
+  const updateGameInList = useCallback((gameId: string, imageUrl: string) => {
     setGamesList(prevGames => prevGames.map(g => 
       g.id === gameId ? { 
         ...g, 
@@ -129,7 +130,7 @@ export const useGames = () => {
         imageSrc: imageUrl // Keep both properties in sync
       } : g
     ));
-  };
+  }, []);
 
   return { 
     gamesList, 

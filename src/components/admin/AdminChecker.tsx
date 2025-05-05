@@ -27,7 +27,7 @@ const AdminChecker = ({ children }: AdminCheckerProps) => {
             <div className="flex flex-col items-center justify-center h-64">
               <div className="text-xl font-semibold mb-4">Checking admin privileges...</div>
               <div className="w-64 mb-4">
-                <Progress value={75} className="h-2 animate-pulse" />
+                <Progress value={75} className="h-2" />
               </div>
               <div className="flex space-x-2">
                 <div className="h-3 w-3 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
