@@ -1,10 +1,13 @@
 
+import { GameState } from "@/hooks/games/flappy-bird/useFlappyBirdGame";
+
 interface GameStatsProps {
   score: number;
   highScore: number;
+  gameState: GameState;
 }
 
-const GameStats = ({ score, highScore }: GameStatsProps) => {
+const GameStats = ({ score, highScore, gameState }: GameStatsProps) => {
   return (
     <div className="flex justify-center gap-8 mb-4">
       <div className="bg-gradient-to-r from-sky-400/50 to-sky-500/50 px-6 py-2 rounded-lg shadow-sm border border-sky-200">
