@@ -10,7 +10,7 @@ const DoodleJump = () => {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-pink-light">
       <Navbar />
       
       <main className="flex-grow container mx-auto px-4 py-8 pt-24">
@@ -32,9 +32,7 @@ const DoodleJump = () => {
           
           <div className="flex justify-center mb-8">
             <div className="w-full max-w-md aspect-[1/1.5] overflow-hidden rounded-lg shadow-lg">
-
-<iframe src="https://shateers.github.io/doodlejump/"
-            
+              <iframe src="https://shateers.github.io/doodlejump/"
                 title="Doodle Jump"
                 className="w-full h-full border-0"
                 allowFullScreen
@@ -44,7 +42,7 @@ const DoodleJump = () => {
             </div>
           </div>
           
-          <div className="bg-secondary/30 p-6 rounded-lg mb-8">
+          <div className="bg-white/70 backdrop-blur-sm p-6 rounded-lg mb-8 shadow-md">
             <h2 className="text-xl font-semibold mb-4">How to Play</h2>
             <div className="space-y-4">
               <p>

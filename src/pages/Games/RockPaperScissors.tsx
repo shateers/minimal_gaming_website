@@ -14,7 +14,7 @@ const RockPaperScissors = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f8f9fa]">
+    <div className="min-h-screen flex flex-col bg-pink-light">
       <Navbar />
       
       <main className="flex-grow pt-20 px-4 md:px-8 pb-16">

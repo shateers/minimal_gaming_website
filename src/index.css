@@ -5,7 +5,7 @@
  
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 350 100% 90%; /* Pink background */
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
@@ -40,7 +40,7 @@
   }
  
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 350 100% 85%; /* Slightly darker pink for dark mode */
     --foreground: 210 40% 98%;
  
     --card: 222.2 84% 4.9%;

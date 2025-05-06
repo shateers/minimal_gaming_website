@@ -3,11 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Instructions = () => {
   return (
-    <Card>
-      <CardHeader>
+    <Card className="bg-white/70 backdrop-blur-sm shadow-md">
+      <CardHeader className="bg-pink-100/50 rounded-t-lg">
         <CardTitle className="text-xl">How to Play</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-2 pt-4">
         <p>Rock Paper Scissors is a classic hand game usually played between two people.</p>
         
         <div className="mt-4">

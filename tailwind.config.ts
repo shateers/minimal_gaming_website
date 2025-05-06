@@ -72,6 +72,10 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        pink: {
+          light: "#FFDEE2",
+          DEFAULT: "#FFB6C1", // The pink color from the image
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
