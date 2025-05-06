@@ -30,6 +30,7 @@ import DoodleJump from "./pages/Games/DoodleJump";
 import CutTheRope from "./pages/Games/CutTheRope";
 import ConnectFour from "./pages/Games/ConnectFour";
 import MemoryMatch from "./pages/Games/MemoryMatch";
+import RockPaperScissors from "./pages/Games/RockPaperScissors";
 import ComingSoon from "./pages/Games/ComingSoon";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/Legal/PrivacyPolicy";
@@ -72,6 +73,7 @@ const App = () => (
             <Route path="/games/cut-the-rope" element={<CutTheRope />} />
             <Route path="/games/connect-four" element={<ConnectFour />} />
             <Route path="/games/memory-match" element={<MemoryMatch />} />
+            <Route path="/games/rock-paper-scissors" element={<RockPaperScissors />} />
             <Route path="/games/coming-soon/:gameName" element={<ComingSoon />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />

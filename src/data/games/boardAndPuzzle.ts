@@ -30,7 +30,7 @@ export const boardAndPuzzleGames: Game[] = [
   {
     title: "Rock Paper Scissors",
     description: "Classic hand-gesture game.",
-    href: "/games/coming-soon/rock-paper-scissors",
+    href: "/games/rock-paper-scissors",
   },
   {
     title: "Dots and Boxes",
