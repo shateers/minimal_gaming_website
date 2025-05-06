@@ -5,7 +5,7 @@ export const boardAndPuzzleGames: Game[] = [
   {
     title: "Connect Four",
     description: "Drop pieces to connect four in a row.",
-    href: "/games/coming-soon/connect-four",
+    href: "/games/connect-four",
   },
   {
     title: "Memory Match",
