@@ -10,7 +10,7 @@ export const boardAndPuzzleGames: Game[] = [
   {
     title: "Memory Match",
     description: "Flip cards to match pairs.",
-    href: "/games/coming-soon/memory-match",
+    href: "/games/memory-match",
   },
   {
     title: "Ludo",
