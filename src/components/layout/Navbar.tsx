@@ -1,17 +1,18 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, loading, profile } = useAuth();
-  
+  const {
+    user,
+    loading,
+    profile
+  } = useAuth();
+
   // Check if user has admin privileges
   const isAdmin = profile?.is_admin === true;
-
-  return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
-      <div className="container mx-auto px-6 h-16 flex items-center justify-between">
+  return <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
+      <div className="container mx-auto px-6 h-16 flex items-center justify-between bg-purple-50">
         <Link to="/" className="text-xl font-bold">
           Shateer Games
         </Link>
@@ -24,115 +25,55 @@ const Navbar = () => {
             Leaderboard
           </Link>
           
-          {!loading && isAdmin && (
-            <Link to="/admin/games" className="hover:text-primary transition-colors">
+          {!loading && isAdmin && <Link to="/admin/games" className="hover:text-primary transition-colors">
               Admin
-            </Link>
-          )}
+            </Link>}
           
-          {!loading && !user ? (
-            <>
-              <Link
-                to="/signin"
-                className="hover:text-primary transition-colors"
-              >
+          {!loading && !user ? <>
+              <Link to="/signin" className="hover:text-primary transition-colors">
                 Sign In
               </Link>
-              <Link
-                to="/signup"
-                className="px-4 py-1.5 bg-primary text-primary-foreground rounded-md"
-              >
+              <Link to="/signup" className="px-4 py-1.5 bg-primary text-primary-foreground rounded-md">
                 Sign Up
               </Link>
-              <Link
-                to="/admin/signin"
-                className="hover:text-primary transition-colors text-sm"
-              >
+              <Link to="/admin/signin" className="hover:text-primary transition-colors text-sm">
                 Admin Login
               </Link>
-            </>
-          ) : !loading && user ? (
-            <Link
-              to="/profile"
-              className="hover:text-primary transition-colors"
-            >
+            </> : !loading && user ? <Link to="/profile" className="hover:text-primary transition-colors">
               My Profile
-            </Link>
-          ) : null}
+            </Link> : null}
         </div>
 
-        <button
-          className="md:hidden"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          {isMenuOpen ? (
-            <span className="text-2xl">×</span>
-          ) : (
-            <span className="text-2xl">≡</span>
-          )}
+        <button className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label="Toggle menu">
+          {isMenuOpen ? <span className="text-2xl">×</span> : <span className="text-2xl">≡</span>}
         </button>
       </div>
 
-      {isMenuOpen && (
-        <div className="md:hidden bg-background border-b border-border">
+      {isMenuOpen && <div className="md:hidden bg-background border-b border-border">
           <div className="container mx-auto px-6 py-4 flex flex-col space-y-3">
-            <Link
-              to="/"
-              onClick={() => setIsMenuOpen(false)}
-              className="hover:text-primary transition-colors py-1"
-            >
+            <Link to="/" onClick={() => setIsMenuOpen(false)} className="hover:text-primary transition-colors py-1">
               Home
             </Link>
-            <Link
-              to="/leaderboard"
-              onClick={() => setIsMenuOpen(false)}
-              className="hover:text-primary transition-colors py-1"
-            >
+            <Link to="/leaderboard" onClick={() => setIsMenuOpen(false)} className="hover:text-primary transition-colors py-1">
               Leaderboard
             </Link>
             
-            {isAdmin && (
-              <Link
-                to="/admin/games"
-                onClick={() => setIsMenuOpen(false)}
-                className="hover:text-primary transition-colors py-1"
-              >
+            {isAdmin && <Link to="/admin/games" onClick={() => setIsMenuOpen(false)} className="hover:text-primary transition-colors py-1">
                 Admin
-              </Link>
-            )}
+              </Link>}
             
-            {!loading && !user ? (
-              <>
-                <Link
-                  to="/signin"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="hover:text-primary transition-colors py-1"
-                >
+            {!loading && !user ? <>
+                <Link to="/signin" onClick={() => setIsMenuOpen(false)} className="hover:text-primary transition-colors py-1">
                   Sign In
                 </Link>
-                <Link
-                  to="/signup"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="px-4 py-1.5 bg-primary text-primary-foreground rounded-md inline-block w-fit"
-                >
+                <Link to="/signup" onClick={() => setIsMenuOpen(false)} className="px-4 py-1.5 bg-primary text-primary-foreground rounded-md inline-block w-fit">
                   Sign Up
                 </Link>
-              </>
-            ) : !loading && user ? (
-              <Link
-                to="/profile"
-                onClick={() => setIsMenuOpen(false)}
-                className="hover:text-primary transition-colors py-1"
-              >
+              </> : !loading && user ? <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="hover:text-primary transition-colors py-1">
                 My Profile
-              </Link>
-            ) : null}
+              </Link> : null}
           </div>
-        </div>
-      )}
-    </header>
-  );
+        </div>}
+    </header>;
 };
-
 export default Navbar;
