@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "./Card";
 import { useMemoryMatchGame, Difficulty } from "@/hooks/games/memory-match/useMemoryMatchGame";
 import { Button } from "@/components/ui/button";
