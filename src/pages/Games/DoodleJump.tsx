@@ -32,8 +32,9 @@ const DoodleJump = () => {
           
           <div className="flex justify-center mb-8">
             <div className="w-full max-w-md aspect-[1/1.5] overflow-hidden rounded-lg shadow-lg">
-              <iframe
-                src="https://www.bestgames.com/embed/Doodle-Jump"
+
+<iframe src="https://shateers.github.io/doodlejump/"
+            
                 title="Doodle Jump"
                 className="w-full h-full border-0"
                 allowFullScreen
