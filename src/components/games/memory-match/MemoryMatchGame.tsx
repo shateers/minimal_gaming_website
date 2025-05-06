@@ -1,120 +1,164 @@
 
-import { useEffect, useState } from "react";
-import { Card } from "./Card";
-import { useMemoryMatchGame, Difficulty } from "@/hooks/games/memory-match/useMemoryMatchGame";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState, useEffect } from 'react';
+import { useMemoryMatchGame, Card } from '../../../hooks/games/memory-match/useMemoryMatchGame';
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-interface MemoryMatchGameProps {
-  soundEnabled: boolean;
-}
-
-const MemoryMatchGame = ({ soundEnabled }: MemoryMatchGameProps) => {
-  const { toast } = useToast();
-  const [difficulty, setDifficulty] = useState<Difficulty>("easy");
-  
+const MemoryMatchGame = () => {
   const {
     cards,
-    moves,
-    gameTime,
     gameStatus,
-    matchedPairs,
+    moves,
+    score,
+    timer,
+    difficulty,
+    matches,
     totalPairs,
-    gridSize,
-    flipCard,
-    initializeGame,
-  } = useMemoryMatchGame(difficulty);
+    formatTime,
+    handleCardFlip,
+    startGame,
+    resetGame,
+    changeDifficulty,
+    togglePause
+  } = useMemoryMatchGame();
 
-  // Initialize game on component mount
-  useEffect(() => {
-    initializeGame();
-  }, [initializeGame, difficulty]);
+  const [animateMatches, setAnimateMatches] = useState(false);
 
-  // Play sounds
   useEffect(() => {
-    if (!soundEnabled) return;
-    
-    if (gameStatus === "completed") {
-      // Play victory sound
-      const audio = new Audio("/sounds/victory.mp3");
-      audio.play().catch(e => console.error("Error playing sound:", e));
-      
-      // Show toast notification
-      toast({
-        title: "You win!",
-        description: `You completed the game in ${moves} moves and ${gameTime} seconds!`,
-      });
+    if (matches > 0) {
+      setAnimateMatches(true);
+      const timeout = setTimeout(() => setAnimateMatches(false), 1000);
+      return () => clearTimeout(timeout);
     }
-  }, [gameStatus, soundEnabled, moves, gameTime, toast]);
-
-  // Handle difficulty change
-  const handleDifficultyChange = (newDifficulty: string) => {
-    setDifficulty(newDifficulty as Difficulty);
-  };
+  }, [matches]);
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      {/* Game header */}
-      <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4">
-        <div className="stats grid grid-cols-3 gap-4 w-full sm:w-auto">
-          <div className="stat bg-white p-3 rounded-lg shadow-sm text-center">
-            <div className="text-sm text-gray-500">Moves</div>
-            <div className="text-2xl font-bold">{moves}</div>
+    <div className="flex flex-col items-center">
+      <div className="mb-6 w-full flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="flex gap-4">
+          <div className="bg-secondary/30 px-4 py-2 rounded-lg">
+            <div className="text-lg font-medium">
+              Time: {formatTime(timer)}
+            </div>
           </div>
-          <div className="stat bg-white p-3 rounded-lg shadow-sm text-center">
-            <div className="text-sm text-gray-500">Time</div>
-            <div className="text-2xl font-bold">{gameTime}s</div>
+          
+          <div className="bg-secondary/30 px-4 py-2 rounded-lg">
+            <div className="text-lg font-medium">
+              Moves: {moves}
+            </div>
           </div>
-          <div className="stat bg-white p-3 rounded-lg shadow-sm text-center">
-            <div className="text-sm text-gray-500">Pairs</div>
-            <div className="text-2xl font-bold">{matchedPairs}/{totalPairs}</div>
+          
+          <div className="bg-secondary/30 px-4 py-2 rounded-lg">
+            <div className="text-lg font-medium">
+              Score: {score}
+            </div>
           </div>
         </div>
         
-        <div className="flex items-center gap-4">
-          <Button onClick={initializeGame}>New Game</Button>
-          <Tabs defaultValue="easy" value={difficulty} onValueChange={handleDifficultyChange}>
-            <TabsList>
-              <TabsTrigger value="easy">Easy</TabsTrigger>
-              <TabsTrigger value="medium">Medium</TabsTrigger>
-              <TabsTrigger value="hard">Hard</TabsTrigger>
-            </TabsList>
-          </Tabs>
+        <Tabs defaultValue={difficulty} onValueChange={(value) => changeDifficulty(value as any)}>
+          <TabsList>
+            <TabsTrigger value="easy" disabled={gameStatus === 'playing'}>Easy</TabsTrigger>
+            <TabsTrigger value="medium" disabled={gameStatus === 'playing'}>Medium</TabsTrigger>
+            <TabsTrigger value="hard" disabled={gameStatus === 'playing'}>Hard</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+      
+      <div className="mb-4 flex items-center justify-center">
+        <div className={`text-xl font-semibold ${animateMatches ? 'animate-pulse text-green-600' : ''}`}>
+          Matches: {matches}/{totalPairs}
         </div>
       </div>
-
-      {/* Game board */}
-      <div 
-        className="grid gap-2 bg-white p-4 rounded-xl shadow-md"
-        style={{ 
-          gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
-          width: '100%',
-          maxWidth: `${gridSize * 70}px`
-        }}
-      >
+      
+      {gameStatus === 'ready' ? (
+        <div className="text-center mb-8">
+          <p className="mb-4 text-lg">Match all the pairs of cards before time runs out!</p>
+          <button
+            onClick={startGame}
+            className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium shadow-sm hover:bg-primary/90 transition-colors"
+          >
+            Start Game
+          </button>
+        </div>
+      ) : gameStatus === 'completed' ? (
+        <div className="text-center p-6 bg-green-100 text-green-800 rounded-lg mb-8">
+          <h3 className="text-xl font-bold mb-2">
+            {matches === totalPairs ? 'Congratulations! 🎉' : 'Time\'s Up! ⏰'}
+          </h3>
+          <p className="mb-2">
+            {matches === totalPairs 
+              ? `You matched all pairs in ${moves} moves with ${formatTime(timer)} remaining!`
+              : `You matched ${matches} out of ${totalPairs} pairs.`}
+          </p>
+          <p className="text-2xl font-bold mb-4">Score: {score}</p>
+          <button
+            onClick={resetGame}
+            className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium shadow-sm hover:bg-primary/90 transition-colors"
+          >
+            Play Again
+          </button>
+        </div>
+      ) : null}
+      
+      <div className={`grid gap-4 ${difficulty === 'easy' ? 'grid-cols-3 sm:grid-cols-4' : difficulty === 'medium' ? 'grid-cols-4 sm:grid-cols-5' : 'grid-cols-5 sm:grid-cols-6'}`}>
         {cards.map((card) => (
-          <Card 
+          <div
             key={card.id}
-            card={card}
-            onFlip={() => flipCard(card.id)}
-            soundEnabled={soundEnabled}
-          />
+            className={`
+              cursor-pointer transform transition-all duration-300
+              ${gameStatus !== 'playing' ? 'pointer-events-none' : ''}
+              ${card.isMatched ? 'scale-90 opacity-70' : card.isFlipped ? 'rotate-y-180' : ''}
+            `}
+            onClick={() => handleCardFlip(card)}
+          >
+            <div className="card-inner w-16 h-16 sm:w-20 sm:h-20 rounded-lg shadow-md perspective-500">
+              <div className={`
+                absolute w-full h-full backface-hidden transition-transform duration-500 flex items-center justify-center text-2xl sm:text-3xl
+                ${card.isFlipped ? 'rotate-y-180' : ''}
+              `}>
+                {card.isFlipped || card.isMatched ? (
+                  <div className="w-full h-full bg-white rounded-lg border-2 border-primary flex items-center justify-center">
+                    {card.value}
+                  </div>
+                ) : (
+                  <div className="w-full h-full bg-primary rounded-lg flex items-center justify-center text-primary-foreground">
+                    ?
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         ))}
       </div>
       
-      {/* Game completion message */}
-      {gameStatus === "completed" && (
-        <div className="mt-6 bg-green-100 border border-green-500 text-green-700 p-4 rounded-lg text-center">
-          <h3 className="text-lg font-bold">Congratulations!</h3>
-          <p>
-            You completed the game in {moves} moves and {gameTime} seconds!
-          </p>
-          <Button onClick={initializeGame} variant="outline" className="mt-2">
-            Play Again
-          </Button>
-        </div>
-      )}
+      <div className="mt-8 flex gap-4">
+        <button
+          onClick={resetGame}
+          className="px-6 py-2 bg-secondary text-secondary-foreground rounded-lg font-medium shadow-sm hover:bg-secondary/90 transition-colors"
+        >
+          Reset
+        </button>
+        
+        {(gameStatus === 'playing' || gameStatus === 'paused') && (
+          <button
+            onClick={togglePause}
+            className="px-6 py-2 bg-secondary text-secondary-foreground rounded-lg font-medium shadow-sm hover:bg-secondary/90 transition-colors"
+          >
+            {gameStatus === 'playing' ? 'Pause' : 'Resume'}
+          </button>
+        )}
+      </div>
+      
+      <style jsx>{`
+        .perspective-500 {
+          perspective: 500px;
+        }
+        .backface-hidden {
+          backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+          transform: rotateY(180deg);
+        }
+      `}</style>
     </div>
   );
 };

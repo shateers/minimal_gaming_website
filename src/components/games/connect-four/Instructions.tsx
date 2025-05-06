@@ -1,36 +1,24 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FC } from 'react';
 
-const Instructions = () => {
+const Instructions: FC = () => {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">How to Play</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <p>Connect Four is a classic two-player connection game where players take turns dropping colored discs into a grid.</p>
-        
-        <div className="mt-4">
-          <h3 className="font-semibold mb-2">Rules:</h3>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>Players take turns placing their colored discs</li>
-            <li>Discs fall to the lowest available position in the column</li>
-            <li>Connect four discs horizontally, vertically, or diagonally to win</li>
-            <li>If the board fills up without a winner, the game is a draw</li>
-          </ul>
-        </div>
-        
-        <div className="mt-4">
-          <h3 className="font-semibold mb-2">Tips:</h3>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>Try to think several moves ahead</li>
-            <li>Block your opponent from connecting four</li>
-            <li>Control the center columns - they provide more winning opportunities</li>
-            <li>Create multiple threats to force your opponent into difficult choices</li>
-          </ul>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="mt-8 p-6 bg-white rounded-lg shadow-sm border border-border">
+      <h2 className="text-xl font-bold mb-4">How to Play</h2>
+      <ul className="list-disc pl-5 space-y-2">
+        <li>Connect Four is a two-player game where players take turns dropping colored discs into a vertical grid.</li>
+        <li>The objective is to be the first to form a horizontal, vertical, or diagonal line of four of one's own discs.</li>
+        <li>Player 1 uses red discs, and Player 2 uses yellow discs.</li>
+        <li>Click on a column to drop your disc into that column.</li>
+        <li>The first player to connect four discs wins the game.</li>
+        <li>If the board fills up with no winner, the game ends in a draw.</li>
+      </ul>
+      
+      <div className="mt-4 p-3 bg-blue-50 rounded-md">
+        <h3 className="font-semibold mb-1">Strategy Tip</h3>
+        <p>Try to block your opponent's potential connections while building your own. The center column is strategically valuable since it allows more ways to connect four discs.</p>
+      </div>
+    </div>
   );
 };
 

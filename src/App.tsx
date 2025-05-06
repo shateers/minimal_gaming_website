@@ -66,8 +66,8 @@ const App = () => (
             <Route path="/games/pinpoint" element={<Pinpoint />} />
             <Route path="/games/2048" element={<Game2048 />} />
             <Route path="/games/dino-run" element={<DinoRun />} />
-            <Route path="/games/minesweeper" element={<Minesweeper />} />
             <Route path="/games/flappy-bird" element={<FlappyBird />} />
+            <Route path="/games/minesweeper" element={<Minesweeper />} />
             <Route path="/games/breakout" element={<Breakout />} />
             <Route path="/games/doodle-jump" element={<DoodleJump />} />
             <Route path="/games/cut-the-rope" element={<CutTheRope />} />

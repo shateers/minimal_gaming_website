@@ -1,184 +1,207 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-// Define card types and game state
-export type MemoryCard = {
+// Card types and interfaces
+export interface Card {
   id: number;
   value: string;
   isFlipped: boolean;
   isMatched: boolean;
+}
+
+type GameStatus = 'ready' | 'playing' | 'paused' | 'completed';
+type Difficulty = 'easy' | 'medium' | 'hard';
+
+const DIFFICULTY_CONFIG = {
+  easy: { pairs: 6, timeLimit: 60 },
+  medium: { pairs: 10, timeLimit: 90 },
+  hard: { pairs: 15, timeLimit: 120 }
 };
 
-type GameStatus = 'idle' | 'playing' | 'completed';
-
-// Game difficulty levels
-export type Difficulty = 'easy' | 'medium' | 'hard';
-
-// Define game settings based on difficulty
-const DIFFICULTY_SETTINGS = {
-  easy: {
-    gridSize: 4, // 4x4 grid
-    matchTime: 1000, // Time to view non-matching cards before flipping back
-  },
-  medium: {
-    gridSize: 6, // 6x6 grid
-    matchTime: 800,
-  },
-  hard: {
-    gridSize: 8, // 8x8 grid
-    matchTime: 600,
-  },
-};
-
-// Card images/emojis
-const CARD_VALUES = [
+// Card emojis for the game
+const CARD_EMOJIS = [
   '🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼',
   '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔',
-  '🐧', '🐦', '🐤', '🦄', '🐝', '🐛', '🦋', '🐌',
-  '🐞', '🐜', '🦟', '🦗', '🕷️', '🦂', '🦐', '🦞',
+  '🦄', '🐙', '🦋', '🐢', '🦖', '🦕', '🦝', '🦩',
+  '🐳', '🐬', '🐠', '🐡', '🦈', '🐊', '🦓', '🦍'
 ];
 
-export function useMemoryMatchGame(difficulty: Difficulty = 'easy') {
-  // Game state
-  const [cards, setCards] = useState<MemoryCard[]>([]);
-  const [flippedCards, setFlippedCards] = useState<number[]>([]);
-  const [matchedPairs, setMatchedPairs] = useState<number>(0);
-  const [moves, setMoves] = useState<number>(0);
-  const [gameStatus, setGameStatus] = useState<GameStatus>('idle');
-  const [gameTime, setGameTime] = useState<number>(0);
-  const [startTime, setStartTime] = useState<number | null>(null);
-  
-  // Get difficulty settings
-  const { gridSize, matchTime } = DIFFICULTY_SETTINGS[difficulty];
-  const totalPairs = (gridSize * gridSize) / 2;
+export const useMemoryMatchGame = () => {
+  const [cards, setCards] = useState<Card[]>([]);
+  const [flippedCards, setFlippedCards] = useState<Card[]>([]);
+  const [gameStatus, setGameStatus] = useState<GameStatus>('ready');
+  const [moves, setMoves] = useState(0);
+  const [score, setScore] = useState(0);
+  const [timer, setTimer] = useState(0);
+  const [timeLimit, setTimeLimit] = useState(DIFFICULTY_CONFIG.easy.timeLimit);
+  const [difficulty, setDifficulty] = useState<Difficulty>('easy');
+  const [matches, setMatches] = useState(0);
+  const [totalPairs, setTotalPairs] = useState(DIFFICULTY_CONFIG.easy.pairs);
 
-  // Initialize or reset the game
-  const initializeGame = useCallback(() => {
-    // Reset game state
+  // Initialize the game with shuffled cards
+  const initializeGame = useCallback((diff: Difficulty = 'easy') => {
+    const { pairs, timeLimit } = DIFFICULTY_CONFIG[diff];
+    
+    // Get a subset of emojis based on difficulty
+    const emojiSubset = [...CARD_EMOJIS].slice(0, pairs);
+    
+    // Create pairs and shuffle
+    const cardPairs = [...emojiSubset, ...emojiSubset]
+      .map((value, index) => ({
+        id: index,
+        value,
+        isFlipped: false,
+        isMatched: false
+      }))
+      .sort(() => Math.random() - 0.5);
+    
+    setCards(cardPairs);
     setFlippedCards([]);
-    setMatchedPairs(0);
     setMoves(0);
-    setGameTime(0);
-    setStartTime(null);
-    setGameStatus('idle');
+    setScore(0);
+    setTimer(timeLimit);
+    setTimeLimit(timeLimit);
+    setGameStatus('ready');
+    setMatches(0);
+    setTotalPairs(pairs);
+    setDifficulty(diff);
+  }, []);
+
+  // Handle card flips
+  const handleCardFlip = useCallback((card: Card) => {
+    // Ignore if game is not playing or card is already flipped/matched
+    if (gameStatus !== 'playing' || card.isFlipped || card.isMatched) {
+      return;
+    }
     
-    // Create and shuffle cards
-    const values = [...CARD_VALUES].slice(0, totalPairs);
-    const cardPairs = [...values, ...values];
-    const shuffledCards = shuffleArray(cardPairs).map((value, index) => ({
-      id: index,
-      value,
-      isFlipped: false,
-      isMatched: false,
-    }));
+    // If we already have 2 flipped cards, ignore new flips
+    if (flippedCards.length === 2) {
+      return;
+    }
     
-    setCards(shuffledCards);
-  }, [totalPairs]);
+    // Update the flipped status of the card
+    const updatedCards = cards.map(c => 
+      c.id === card.id ? { ...c, isFlipped: true } : c
+    );
+    
+    setCards(updatedCards);
+    
+    // Add card to flippedCards
+    const updatedFlippedCards = [...flippedCards, card];
+    setFlippedCards(updatedFlippedCards);
+    
+    // If this is the second card flipped, check for a match
+    if (updatedFlippedCards.length === 2) {
+      setMoves(prev => prev + 1);
+      
+      const [first, second] = updatedFlippedCards;
+      
+      if (first.value === second.value) {
+        // It's a match!
+        setTimeout(() => {
+          const matchedCards = cards.map(c => 
+            c.id === first.id || c.id === second.id 
+              ? { ...c, isMatched: true } 
+              : c
+          );
+          
+          setCards(matchedCards);
+          setFlippedCards([]);
+          setMatches(prev => prev + 1);
+          setScore(prev => prev + 10); // 10 points per match
+          
+          // Check if all pairs are matched
+          if (matches + 1 === totalPairs) {
+            setGameStatus('completed');
+            // Bonus points for unused time and fewer moves
+            const timeBonus = Math.floor(timer * 0.5);
+            const moveBonus = Math.max(0, 30 - moves) * 2;
+            setScore(prev => prev + timeBonus + moveBonus);
+          }
+        }, 500);
+      } else {
+        // Not a match, flip cards back
+        setTimeout(() => {
+          const resetCards = cards.map(c => 
+            c.id === first.id || c.id === second.id 
+              ? { ...c, isFlipped: false } 
+              : c
+          );
+          
+          setCards(resetCards);
+          setFlippedCards([]);
+          setScore(prev => Math.max(0, prev - 1)); // -1 point for wrong match
+        }, 1000);
+      }
+    }
+  }, [cards, flippedCards, gameStatus, matches, timer, totalPairs, moves]);
 
   // Start the game
   const startGame = useCallback(() => {
     setGameStatus('playing');
-    setStartTime(Date.now());
   }, []);
 
-  // Flip a card
-  const flipCard = useCallback((cardId: number) => {
-    // Start game on first card flip if not started
-    if (gameStatus === 'idle') {
-      startGame();
-    }
-    
-    // Don't allow more than 2 cards flipped at once
-    if (flippedCards.length >= 2) return;
-    
-    // Don't allow flipping a card that's already flipped or matched
-    const card = cards.find(c => c.id === cardId);
-    if (!card || card.isFlipped || card.isMatched) return;
-    
-    // Flip the card
-    setCards(prevCards => 
-      prevCards.map(card => 
-        card.id === cardId ? { ...card, isFlipped: true } : card
-      )
-    );
-    
-    setFlippedCards(prev => [...prev, cardId]);
-    
-    // If this is the second card, check for a match
-    if (flippedCards.length === 1) {
-      setMoves(prev => prev + 1);
-      const firstCardId = flippedCards[0];
-      const firstCard = cards.find(c => c.id === firstCardId)!;
-      const secondCard = cards.find(c => c.id === cardId)!;
-      
-      if (firstCard.value === secondCard.value) {
-        // Cards match
-        setCards(prevCards => 
-          prevCards.map(card => 
-            (card.id === firstCardId || card.id === cardId) ? { ...card, isMatched: true } : card
-          )
-        );
-        setMatchedPairs(prev => prev + 1);
-        setFlippedCards([]);
-      } else {
-        // Cards don't match, flip them back after a delay
-        setTimeout(() => {
-          setCards(prevCards => 
-            prevCards.map(card => 
-              (card.id === firstCardId || card.id === cardId) ? { ...card, isFlipped: false } : card
-            )
-          );
-          setFlippedCards([]);
-        }, matchTime);
-      }
-    }
-  }, [cards, flippedCards, gameStatus, matchTime, startGame]);
+  // Reset the game
+  const resetGame = useCallback(() => {
+    initializeGame(difficulty);
+  }, [initializeGame, difficulty]);
 
-  // Game timer
+  // Change difficulty
+  const changeDifficulty = useCallback((diff: Difficulty) => {
+    if (gameStatus !== 'playing') {
+      initializeGame(diff);
+    }
+  }, [initializeGame, gameStatus]);
+
+  // Pause/resume game
+  const togglePause = useCallback(() => {
+    setGameStatus(prev => prev === 'playing' ? 'paused' : 'playing');
+  }, []);
+
+  // Timer effect
   useEffect(() => {
-    let intervalId: number;
+    let intervalId: number | undefined;
     
-    if (gameStatus === 'playing') {
+    if (gameStatus === 'playing' && timer > 0) {
       intervalId = window.setInterval(() => {
-        if (startTime) {
-          const currentTime = Math.floor((Date.now() - startTime) / 1000);
-          setGameTime(currentTime);
-        }
+        setTimer(prev => {
+          const newTime = prev - 1;
+          if (newTime <= 0) {
+            setGameStatus('completed');
+            return 0;
+          }
+          return newTime;
+        });
       }, 1000);
     }
     
     return () => {
-      clearInterval(intervalId);
+      if (intervalId) clearInterval(intervalId);
     };
-  }, [gameStatus, startTime]);
+  }, [gameStatus, timer]);
 
-  // Check if game is completed
-  useEffect(() => {
-    if (matchedPairs === totalPairs && totalPairs > 0 && gameStatus === 'playing') {
-      setGameStatus('completed');
-    }
-  }, [matchedPairs, totalPairs, gameStatus]);
-
-  // Helper function to shuffle an array
-  function shuffleArray<T>(array: T[]): T[] {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  }
+  // Format time as MM:SS
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   return {
     cards,
-    moves,
-    gameTime,
     gameStatus,
-    matchedPairs,
+    moves,
+    score,
+    timer,
+    difficulty,
+    matches,
     totalPairs,
-    gridSize,
-    flipCard,
-    initializeGame,
+    formatTime,
+    handleCardFlip,
     startGame,
+    resetGame,
+    changeDifficulty,
+    togglePause,
+    initializeGame
   };
-}
+};

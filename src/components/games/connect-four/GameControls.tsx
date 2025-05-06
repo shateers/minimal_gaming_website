@@ -1,44 +1,82 @@
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { FC } from 'react';
 
-const GameControls = () => {
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [showHints, setShowHints] = useState(true);
+type Player = 1 | 2;
+type GameStatus = 'playing' | 'paused' | 'won' | 'draw';
 
+interface GameControlsProps {
+  currentPlayer: Player;
+  gameStatus: GameStatus;
+  winner: Player | null;
+  timer: number;
+  moves: number;
+  formatTime: (seconds: number) => string;
+  onReset: () => void;
+  onPauseResume: () => void;
+}
+
+const GameControls: FC<GameControlsProps> = ({
+  currentPlayer,
+  gameStatus,
+  winner,
+  timer,
+  moves,
+  formatTime,
+  onReset,
+  onPauseResume
+}) => {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">Game Settings</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="sound" className="flex flex-col gap-1">
-            <span>Sound Effects</span>
-            <span className="text-sm font-normal text-muted-foreground">Toggle game sounds on/off</span>
-          </Label>
-          <Switch 
-            id="sound" 
-            checked={soundEnabled} 
-            onCheckedChange={setSoundEnabled} 
-          />
+    <div className="my-6">
+      {gameStatus === 'won' && (
+        <div className="p-4 bg-green-100 text-green-800 rounded-lg text-center mb-4">
+          <p className="text-lg font-medium">
+            Player {winner === 1 ? 'Red' : 'Yellow'} Wins!
+          </p>
+          <p>
+            Time: {formatTime(timer)} | Moves: {moves}
+          </p>
         </div>
-        
-        <div className="flex items-center justify-between">
-          <Label htmlFor="hints" className="flex flex-col gap-1">
-            <span>Show Hints</span>
-            <span className="text-sm font-normal text-muted-foreground">Show column preview on hover</span>
-          </Label>
-          <Switch 
-            id="hints" 
-            checked={showHints} 
-            onCheckedChange={setShowHints} 
-          />
+      )}
+
+      {gameStatus === 'draw' && (
+        <div className="p-4 bg-blue-100 text-blue-800 rounded-lg text-center mb-4">
+          <p className="text-lg font-medium">Game Draw!</p>
+          <p>
+            Time: {formatTime(timer)} | Moves: {moves}
+          </p>
         </div>
-      </CardContent>
-    </Card>
+      )}
+
+      {gameStatus === 'playing' && (
+        <div className="p-3 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
+          <div className="font-medium mr-2">Current Player:</div>
+          <div 
+            className={`w-6 h-6 rounded-full ${
+              currentPlayer === 1 ? 'bg-red-500' : 'bg-yellow-400'
+            }`}
+          />
+          <div className="ml-2">{currentPlayer === 1 ? 'Red' : 'Yellow'}</div>
+        </div>
+      )}
+
+      <div className="flex flex-wrap justify-center gap-4">
+        <button 
+          onClick={onReset} 
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium shadow-sm hover:bg-blue-700 transition-colors"
+        >
+          New Game
+        </button>
+
+        {(gameStatus === 'playing' || gameStatus === 'paused') && (
+          <button 
+            onClick={onPauseResume} 
+            className="px-6 py-2 bg-gray-600 text-white rounded-lg font-medium shadow-sm hover:bg-gray-700 transition-colors"
+          >
+            {gameStatus === 'playing' ? 'Pause' : 'Resume'}
+          </button>
+        )}
+      </div>
+    </div>
   );
 };
 
